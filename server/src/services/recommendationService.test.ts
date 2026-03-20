@@ -13,7 +13,7 @@ vi.mock('@anthropic-ai/sdk', () => {
 
 import Anthropic from '@anthropic-ai/sdk';
 import { getRecommendation } from './recommendationService';
-import { RecommendationRequest } from '../../shared/types';
+import { RecommendationRequest } from '@shared/types';
 
 const mockCreate = vi.fn();
 
@@ -64,11 +64,17 @@ describe('getRecommendation', () => {
   });
 
   it('throws when ANTHROPIC_API_KEY is not set', async () => {
+    // The service uses a lazy singleton, so we must reset modules to get a fresh one.
+    vi.resetModules();
     delete process.env.ANTHROPIC_API_KEY;
 
-    await expect(getRecommendation(validRequest)).rejects.toThrow(
-      'ANTHROPIC_API_KEY is not configured',
-    );
+    // vi.doMock (not hoisted) re-registers the mock after resetModules
+    vi.doMock('@anthropic-ai/sdk', () => ({
+      default: vi.fn(),
+    }));
+
+    const { getRecommendation: isolated } = await import('./recommendationService');
+    await expect(isolated(validRequest)).rejects.toThrow('ANTHROPIC_API_KEY is not configured');
   });
 
   it('throws when response JSON is unparseable', async () => {
@@ -86,9 +92,7 @@ describe('getRecommendation', () => {
       content: [{ type: 'text', text: JSON.stringify({ artist: 'X' }) }],
     });
 
-    await expect(getRecommendation(validRequest)).rejects.toThrow(
-      'Incomplete recommendation data',
-    );
+    await expect(getRecommendation(validRequest)).rejects.toThrow('Incomplete recommendation data');
   });
 
   it('includes genre constraint in the prompt when genre is set', async () => {

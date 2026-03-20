@@ -1,9 +1,25 @@
 import { RecommendationRequest, RecommendationResponse, ArtworkResponse } from '@shared/types';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? '';
+const REQUEST_TIMEOUT_MS = 30_000;
+
+async function fetchWithTimeout(input: string, init?: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
 
 async function post<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetchWithTimeout(`${API_BASE}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -19,7 +35,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 
 async function get<T>(path: string, params: Record<string, string>): Promise<T> {
   const query = new URLSearchParams(params).toString();
-  const res = await fetch(`${API_BASE}${path}?${query}`);
+  const res = await fetchWithTimeout(`${API_BASE}${path}?${query}`);
 
   if (!res.ok) {
     const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -29,7 +45,9 @@ async function get<T>(path: string, params: Record<string, string>): Promise<T> 
   return res.json() as Promise<T>;
 }
 
-export function fetchRecommendation(request: RecommendationRequest): Promise<RecommendationResponse> {
+export function fetchRecommendation(
+  request: RecommendationRequest,
+): Promise<RecommendationResponse> {
   return post<RecommendationResponse>('/api/recommend', request);
 }
 

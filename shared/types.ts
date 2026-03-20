@@ -1,3 +1,20 @@
+export const VALID_GENRES = [
+  'Electronic / Dance',
+  'Hip-Hop / Beats',
+  'Indie / Alternative',
+  'Post-Punk / New Wave',
+  'Art Rock',
+  'Ambient / Neoclassical',
+  'Folk',
+  'Jazz',
+  'Drum & Bass / Breakbeat',
+  'Metal',
+  'Soul / R&B',
+  'Classical',
+] as const;
+
+export type Genre = (typeof VALID_GENRES)[number];
+
 export interface LibraryData {
   readonly artists: readonly string[];
   readonly albums: readonly string[];

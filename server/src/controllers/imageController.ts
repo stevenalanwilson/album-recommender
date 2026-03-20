@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { fetchImageBytes } from '../services/imageProxyService';
+import { logger } from '../logger';
 
 export async function handleImage(req: Request, res: Response): Promise<void> {
   const { url } = req.query;
@@ -16,6 +17,7 @@ export async function handleImage(req: Request, res: Response): Promise<void> {
     res.send(buffer);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to fetch image';
+    logger.error({ error: message, url }, 'image proxy failed');
     res.status(502).json({ error: message });
   }
 }

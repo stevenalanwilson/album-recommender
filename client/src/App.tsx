@@ -1,23 +1,9 @@
 import React from 'react';
+import { VALID_GENRES } from '@shared/types';
 import { useRecommendation } from './hooks/useRecommendation';
 import { LibraryUpload } from './features/library/LibraryUpload';
 import { RecommendationCard } from './features/recommendation/RecommendationCard';
 import { HistoryGrid } from './features/history/HistoryGrid';
-
-const GENRES = [
-  'Electronic / Dance',
-  'Hip-Hop / Beats',
-  'Indie / Alternative',
-  'Post-Punk / New Wave',
-  'Art Rock',
-  'Ambient / Neoclassical',
-  'Folk',
-  'Jazz',
-  'Drum & Bass / Breakbeat',
-  'Metal',
-  'Soul / R&B',
-  'Classical',
-];
 
 export default function App(): React.ReactElement {
   const {
@@ -34,12 +20,37 @@ export default function App(): React.ReactElement {
   } = useRecommendation();
 
   return (
-    <div style={{ position: 'relative', zIndex: 1, maxWidth: 680, margin: '0 auto', padding: '48px 24px 80px' }}>
+    <div
+      style={{
+        position: 'relative',
+        zIndex: 1,
+        maxWidth: 680,
+        margin: '0 auto',
+        padding: '48px 24px 80px',
+      }}
+    >
       <header style={{ marginBottom: 56 }}>
-        <h1 style={{ fontFamily: 'var(--serif)', fontSize: 42, fontWeight: 400, fontStyle: 'italic', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
+        <h1
+          style={{
+            fontFamily: 'var(--serif)',
+            fontSize: 42,
+            fontWeight: 400,
+            fontStyle: 'italic',
+            letterSpacing: '-0.5px',
+            lineHeight: 1.1,
+          }}
+        >
           Album Recommender
         </h1>
-        <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+        <p
+          style={{
+            fontSize: 12,
+            color: 'var(--muted)',
+            marginTop: 8,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+          }}
+        >
           Powered by your Apple Music library &amp; Claude AI
         </p>
       </header>
@@ -47,7 +58,16 @@ export default function App(): React.ReactElement {
       <LibraryUpload libraryData={libraryData} onLibraryParsed={setLibraryData} />
 
       <div style={{ marginBottom: 16 }}>
-        <label style={{ display: 'block', fontSize: 11, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
+        <label
+          style={{
+            display: 'block',
+            fontSize: 11,
+            color: 'var(--muted)',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            marginBottom: 8,
+          }}
+        >
           Genre <span style={{ opacity: 0.5 }}>(optional)</span>
         </label>
         <select
@@ -67,8 +87,10 @@ export default function App(): React.ReactElement {
           }}
         >
           <option value="">— Any genre —</option>
-          {GENRES.map((g) => (
-            <option key={g} value={g}>{g}</option>
+          {VALID_GENRES.map((g) => (
+            <option key={g} value={g}>
+              {g}
+            </option>
           ))}
         </select>
       </div>

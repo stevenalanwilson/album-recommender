@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { HistoryGrid } from './HistoryGrid';
@@ -6,11 +5,18 @@ import { HistoryEntry } from '../../types/history';
 
 const entries: HistoryEntry[] = [
   {
+    id: 'test-id-1',
     recommendation: { artist: 'Burial', album: 'Untrue', year: '2007', reason: 'Great album.' },
     artworkResponse: { artworkUrl: null, year: '2007', appleMusicUrl: null },
   },
   {
-    recommendation: { artist: 'Four Tet', album: 'There Is Love In You', year: '2010', reason: 'Lovely.' },
+    id: 'test-id-2',
+    recommendation: {
+      artist: 'Four Tet',
+      album: 'There Is Love In You',
+      year: '2010',
+      reason: 'Lovely.',
+    },
     artworkResponse: {
       artworkUrl: 'https://example.com/art.jpg',
       year: '2010',
@@ -41,7 +47,10 @@ describe('HistoryGrid', () => {
   it('links directly to appleMusicUrl when available', () => {
     render(<HistoryGrid history={entries} />);
     const links = screen.getAllByRole('link');
-    const fourTetLink = links.find((l) => l.getAttribute('href') === 'https://music.apple.com/gb/album/there-is-love-in-you/12345');
+    const fourTetLink = links.find(
+      (l) =>
+        l.getAttribute('href') === 'https://music.apple.com/gb/album/there-is-love-in-you/12345',
+    );
     expect(fourTetLink).toBeDefined();
     expect(fourTetLink).toHaveAttribute('target', '_blank');
   });
@@ -49,7 +58,9 @@ describe('HistoryGrid', () => {
   it('falls back to Apple Music search URL when appleMusicUrl is null', () => {
     render(<HistoryGrid history={entries} />);
     const links = screen.getAllByRole('link');
-    const burialLink = links.find((l) => l.getAttribute('href')?.includes('music.apple.com/gb/search'));
+    const burialLink = links.find((l) =>
+      l.getAttribute('href')?.includes('music.apple.com/gb/search'),
+    );
     expect(burialLink).toBeDefined();
     expect(burialLink?.getAttribute('href')).toContain('Burial');
   });

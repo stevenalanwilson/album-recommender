@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseAppleMusicXml } from './libraryParser';
+import { parseAppleMusicXml, parseArtistText } from './libraryParser';
 
 function buildPlist(tracks: Record<string, string>[]): string {
   const trackEntries = tracks
@@ -98,5 +98,43 @@ describe('parseAppleMusicXml', () => {
   it('throws when Tracks dict is missing', () => {
     const xml = `<?xml version="1.0"?><plist version="1.0"><dict><key>Other</key><string>data</string></dict></plist>`;
     expect(() => parseAppleMusicXml(xml)).toThrow('Could not find Tracks dictionary');
+  });
+});
+
+describe('parseArtistText', () => {
+  it('parses a simple list of artists', () => {
+    const result = parseArtistText('Radiohead\nPortishead\nMassive Attack');
+    expect(result.artists).toEqual(['Massive Attack', 'Portishead', 'Radiohead']);
+    expect(result.trackCount).toBe(3);
+  });
+
+  it('parses Artist — Album format and extracts both', () => {
+    const result = parseArtistText('Radiohead — OK Computer\nPortishead — Dummy');
+    expect(result.artists).toContain('Radiohead');
+    expect(result.artists).toContain('Portishead');
+    expect(result.albums).toContain('OK Computer');
+    expect(result.albums).toContain('Dummy');
+  });
+
+  it('parses Artist -- Album (double hyphen) format', () => {
+    const result = parseArtistText('Burial -- Untrue');
+    expect(result.artists).toContain('Burial');
+    expect(result.albums).toContain('Untrue');
+  });
+
+  it('ignores empty lines and comment lines', () => {
+    const result = parseArtistText('Radiohead\n\n# a comment\nPortishead');
+    expect(result.artists).toHaveLength(2);
+    expect(result.trackCount).toBe(2);
+  });
+
+  it('deduplicates artists', () => {
+    const result = parseArtistText('Radiohead\nRadiohead\nPortishead');
+    expect(result.artists).toHaveLength(2);
+  });
+
+  it('returns sorted artists and albums', () => {
+    const result = parseArtistText('Zzz\nAaa');
+    expect(result.artists[0]).toBe('Aaa');
   });
 });

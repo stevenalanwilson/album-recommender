@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { fetchArtwork } from '../services/artworkService';
+import { logger } from '../logger';
 
 export async function handleArtwork(req: Request, res: Response): Promise<void> {
   const { artist, album } = req.query;
@@ -14,6 +15,7 @@ export async function handleArtwork(req: Request, res: Response): Promise<void> 
     res.json(artwork);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
+    logger.error({ error: message, artist, album }, 'artwork fetch failed');
     res.status(500).json({ error: message });
   }
 }

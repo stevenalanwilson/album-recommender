@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { RecommendationRequest, RecommendationResponse } from '../../shared/types';
+import { RecommendationRequest, RecommendationResponse } from '@shared/types';
 
 const SYSTEM_PROMPT =
   'You are a music expert with encyclopaedic knowledge of albums across all genres. ' +

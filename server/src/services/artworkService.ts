@@ -1,4 +1,4 @@
-import { ArtworkResponse } from '../../shared/types';
+import { ArtworkResponse } from '@shared/types';
 
 const FETCH_TIMEOUT_MS = 8000;
 
@@ -47,11 +47,7 @@ async function fetchWithTimeout(url: string, options?: RequestInit): Promise<Res
   }
 }
 
-function scoreMatch(
-  group: MusicBrainzReleaseGroup,
-  album: string,
-  artist: string,
-): number {
+function scoreMatch(group: MusicBrainzReleaseGroup, album: string, artist: string): number {
   let score = 0;
   const albumLower = album.toLowerCase();
   const artistLower = artist.toLowerCase();

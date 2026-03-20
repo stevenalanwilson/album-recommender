@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { getRecommendation } from '../services/recommendationService';
-import { RecommendationRequest } from '../../shared/types';
+import { RecommendationRequest, VALID_GENRES } from '@shared/types';
+import { logger } from '../logger';
 
 const MAX_LIST_LENGTH = 500;
+const VALID_GENRE_SET = new Set<string>(VALID_GENRES);
 
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string');
@@ -16,7 +18,14 @@ export async function handleRecommend(req: Request, res: Response): Promise<void
     !isStringArray(body.albumList) ||
     !isStringArray(body.alreadySuggested)
   ) {
-    res.status(400).json({ error: 'artistList, albumList, and alreadySuggested must be arrays of strings' });
+    res
+      .status(400)
+      .json({ error: 'artistList, albumList, and alreadySuggested must be arrays of strings' });
+    return;
+  }
+
+  if (body.artistList.length === 0) {
+    res.status(400).json({ error: 'artistList must not be empty' });
     return;
   }
 
@@ -25,8 +34,11 @@ export async function handleRecommend(req: Request, res: Response): Promise<void
     return;
   }
 
-  if (body.genre !== undefined && typeof body.genre !== 'string') {
-    res.status(400).json({ error: 'genre must be a string' });
+  if (
+    body.genre !== undefined &&
+    (typeof body.genre !== 'string' || !VALID_GENRE_SET.has(body.genre))
+  ) {
+    res.status(400).json({ error: 'genre must be one of the supported genres' });
     return;
   }
 
@@ -40,6 +52,7 @@ export async function handleRecommend(req: Request, res: Response): Promise<void
     res.json(recommendation);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
+    logger.error({ error: message }, 'recommendation request failed');
     res.status(500).json({ error: message });
   }
 }
