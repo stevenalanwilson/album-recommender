@@ -1,0 +1,44 @@
+import React from 'react';
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { RecommendationCard } from './RecommendationCard';
+
+const mockRec = {
+  artist: 'Massive Attack',
+  album: 'Mezzanine',
+  year: '1998',
+  reason: 'A perfect album for your taste.',
+};
+
+const mockArtwork = { artworkUrl: null, year: '1998' };
+
+describe('RecommendationCard', () => {
+  it('renders the empty state when no recommendation', () => {
+    render(<RecommendationCard recommendation={null} artworkResponse={null} isLoading={false} error={null} />);
+    expect(screen.getByText(/next favourite album is waiting/)).toBeInTheDocument();
+  });
+
+  it('renders the loading state', () => {
+    render(<RecommendationCard recommendation={null} artworkResponse={null} isLoading={true} error={null} />);
+    expect(screen.getByText(/Finding your next favourite/)).toBeInTheDocument();
+  });
+
+  it('renders an error message', () => {
+    render(<RecommendationCard recommendation={null} artworkResponse={null} isLoading={false} error="API error" />);
+    expect(screen.getByText('API error')).toBeInTheDocument();
+  });
+
+  it('renders a recommendation card', () => {
+    render(<RecommendationCard recommendation={mockRec} artworkResponse={mockArtwork} isLoading={false} error={null} />);
+    expect(screen.getByText('Mezzanine')).toBeInTheDocument();
+    expect(screen.getByText('Massive Attack')).toBeInTheDocument();
+    expect(screen.getByText('1998')).toBeInTheDocument();
+    expect(screen.getByText('A perfect album for your taste.')).toBeInTheDocument();
+  });
+
+  it('renders the Apple Music search link', () => {
+    render(<RecommendationCard recommendation={mockRec} artworkResponse={mockArtwork} isLoading={false} error={null} />);
+    const link = screen.getByText('Search in Apple Music').closest('a');
+    expect(link).toHaveAttribute('href', expect.stringContaining('music.apple.com'));
+  });
+});
