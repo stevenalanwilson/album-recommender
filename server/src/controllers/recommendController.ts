@@ -3,7 +3,7 @@ import { getRecommendation } from '../services/recommendationService';
 import { RecommendationRequest, VALID_GENRES } from '@shared/types';
 import { logger } from '../logger';
 
-const MAX_LIST_LENGTH = 500;
+const MAX_LIST_LENGTH = 5000;
 const VALID_GENRE_SET = new Set<string>(VALID_GENRES);
 
 function isStringArray(value: unknown): value is string[] {

@@ -31,10 +31,16 @@ interface ItunesAlbum {
   collectionName: string;
   artistName: string;
   collectionViewUrl: string;
+  artworkUrl100?: string;
 }
 
 interface ItunesSearchResult {
   results: ItunesAlbum[];
+}
+
+interface ItunesData {
+  appleMusicUrl: string | null;
+  artworkUrl: string | null;
 }
 
 async function fetchWithTimeout(url: string, options?: RequestInit): Promise<Response> {
@@ -62,16 +68,17 @@ function scoreMatch(group: MusicBrainzReleaseGroup, album: string, artist: strin
   return score;
 }
 
-async function fetchAppleMusicUrl(artist: string, album: string): Promise<string | null> {
+async function fetchItunesData(artist: string, album: string): Promise<ItunesData> {
   try {
     const term = encodeURIComponent(`${artist} ${album}`);
     const res = await fetchWithTimeout(
       `https://itunes.apple.com/search?term=${term}&media=music&entity=album&limit=5`,
     );
-    if (!res.ok) return null;
+    if (!res.ok) return { appleMusicUrl: null, artworkUrl: null };
 
     const data = (await res.json()) as ItunesSearchResult;
-    if (!data.results || data.results.length === 0) return null;
+    if (!data.results || data.results.length === 0)
+      return { appleMusicUrl: null, artworkUrl: null };
 
     const albumLower = album.toLowerCase();
     const artistLower = artist.toLowerCase();
@@ -90,9 +97,16 @@ async function fetchAppleMusicUrl(artist: string, album: string): Promise<string
     });
 
     scored.sort((a, b) => b.score - a.score);
-    return scored[0].result.collectionViewUrl ?? null;
+    const best = scored[0].result;
+
+    // artworkUrl100 is 100×100; replace to get 500×500
+    const artworkUrl = best.artworkUrl100
+      ? best.artworkUrl100.replace('100x100bb', '500x500bb')
+      : null;
+
+    return { appleMusicUrl: best.collectionViewUrl ?? null, artworkUrl };
   } catch {
-    return null;
+    return { appleMusicUrl: null, artworkUrl: null };
   }
 }
 
@@ -139,10 +153,23 @@ export async function fetchArtwork(artist: string, album: string): Promise<Artwo
       }
     }
 
-    const appleMusicUrl = await fetchAppleMusicUrl(artist, album);
+    const itunesData = await fetchItunesData(artist, album);
 
-    return { artworkUrl, year, appleMusicUrl };
+    return {
+      artworkUrl: artworkUrl ?? itunesData.artworkUrl,
+      year,
+      appleMusicUrl: itunesData.appleMusicUrl,
+    };
   } catch {
-    return { artworkUrl: null, year: null, appleMusicUrl: null };
+    // MusicBrainz/CAA failed — still try iTunes for artwork and Apple Music URL
+    const itunesData = await fetchItunesData(artist, album).catch(() => ({
+      appleMusicUrl: null,
+      artworkUrl: null,
+    }));
+    return {
+      artworkUrl: itunesData.artworkUrl,
+      year: null,
+      appleMusicUrl: itunesData.appleMusicUrl,
+    };
   }
 }

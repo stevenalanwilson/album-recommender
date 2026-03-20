@@ -1,4 +1,4 @@
-const TRUSTED_HOSTNAMES = ['coverartarchive.org', 'archive.org'];
+const TRUSTED_HOSTNAMES = ['coverartarchive.org', 'archive.org', 'mzstatic.com'];
 
 function isTrustedHostname(hostname: string): boolean {
   return TRUSTED_HOSTNAMES.some(

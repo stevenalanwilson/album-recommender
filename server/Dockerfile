@@ -1,7 +1,8 @@
 FROM node:20-alpine
 WORKDIR /app
-COPY package*.json ./
+COPY server/package*.json ./
 RUN npm ci
-COPY . .
+COPY server/ .
+COPY shared/ /shared/
 EXPOSE 3001
 CMD ["npm", "run", "dev"]

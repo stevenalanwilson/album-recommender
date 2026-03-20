@@ -3,8 +3,8 @@ version: '3.9'
 services:
   server:
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
     ports:
       - '3001:3001'
     environment:
@@ -13,6 +13,7 @@ services:
       - CORS_ORIGIN=http://localhost:5173
     volumes:
       - ./server/src:/app/src
+      - ./shared:/shared
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/health"]
@@ -23,14 +24,15 @@ services:
 
   client:
     build:
-      context: ./client
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: client/Dockerfile
     ports:
       - '5173:5173'
     environment:
-      - VITE_API_URL=http://server:3001
+      - API_PROXY_TARGET=http://server:3001
     volumes:
       - ./client/src:/app/src
+      - ./shared:/shared
     depends_on:
       server:
         condition: service_healthy
