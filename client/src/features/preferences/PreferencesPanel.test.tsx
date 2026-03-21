@@ -2,19 +2,9 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PreferencesPanel } from './PreferencesPanel';
-import { RecommendationPreferences } from '@shared/types';
+import { DEFAULT_PREFERENCES } from '../../hooks/useRecommendation';
 
-const defaultPreferences: RecommendationPreferences = {
-  genres: [],
-  moods: [],
-  tempo: 5,
-  energy: 5,
-  density: 5,
-  era: 'any',
-  includeFamiliarArtists: true,
-  prioritiseObscure: false,
-  stayFocused: false,
-};
+const defaultPreferences = DEFAULT_PREFERENCES;
 
 describe('PreferencesPanel', () => {
   it('renders all genre pills', () => {

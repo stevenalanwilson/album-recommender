@@ -1,23 +1,44 @@
 import { Request, Response } from 'express';
 import { getRecommendation } from '../services/recommendationService';
-import { RecommendationRequest, RecommendationPreferences } from '@shared/types';
+import {
+  RecommendationRequest,
+  RecommendationPreferences,
+  SLIDER_MIN,
+  SLIDER_MAX,
+  ERA_VALUES,
+} from '@shared/types';
 import { logger } from '../logger';
 
-const VALID_ERAS = new Set(['pre-80s', '80s-90s', '00s-10s', 'recent', 'any']);
+const VALID_ERAS = new Set<string>(ERA_VALUES);
+const MAX_PREFERENCE_ARRAY_LENGTH = 50;
 
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+function isSliderValue(value: unknown): value is number {
+  return (
+    typeof value === 'number' &&
+    Number.isInteger(value) &&
+    value >= SLIDER_MIN &&
+    value <= SLIDER_MAX
+  );
 }
 
 function isValidPreferences(value: unknown): value is RecommendationPreferences {
   if (typeof value !== 'object' || value === null) return false;
   const p = value as Record<string, unknown>;
   return (
+    // Length guard before .every() so an oversized array is rejected in O(1), not O(n).
+    Array.isArray(p.genres) &&
+    p.genres.length <= MAX_PREFERENCE_ARRAY_LENGTH &&
     isStringArray(p.genres) &&
+    Array.isArray(p.moods) &&
+    p.moods.length <= MAX_PREFERENCE_ARRAY_LENGTH &&
     isStringArray(p.moods) &&
-    typeof p.tempo === 'number' &&
-    typeof p.energy === 'number' &&
-    typeof p.density === 'number' &&
+    isSliderValue(p.tempo) &&
+    isSliderValue(p.energy) &&
+    isSliderValue(p.density) &&
     typeof p.era === 'string' &&
     VALID_ERAS.has(p.era) &&
     typeof p.includeFamiliarArtists === 'boolean' &&

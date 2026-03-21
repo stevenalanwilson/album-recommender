@@ -1,5 +1,14 @@
 import React from 'react';
-import { RecommendationPreferences, Era } from '@shared/types';
+import { RecommendationPreferences, Era, SLIDER_MIN, SLIDER_MAX, ERA_VALUES } from '@shared/types';
+
+// Derived from the interface so field names stay in sync automatically with any future renames.
+type SliderField = {
+  [K in keyof RecommendationPreferences]: RecommendationPreferences[K] extends number ? K : never;
+}[keyof RecommendationPreferences];
+
+type ToggleField = {
+  [K in keyof RecommendationPreferences]: RecommendationPreferences[K] extends boolean ? K : never;
+}[keyof RecommendationPreferences];
 
 const GENRE_OPTIONS = [
   'Electronic',
@@ -26,13 +35,17 @@ const MOOD_OPTIONS = [
   'Hopeful',
 ] as const;
 
-const ERA_OPTIONS: { value: Era; label: string }[] = [
-  { value: 'pre-80s', label: 'Pre-80s' },
-  { value: '80s-90s', label: '80s–90s' },
-  { value: '00s-10s', label: '00s–10s' },
-  { value: 'recent', label: 'Recent' },
-  { value: 'any', label: 'Any' },
-];
+// Record keyed on Era enforces exhaustiveness: TypeScript errors if a new era is added
+// to ERA_VALUES without a corresponding label here.
+const ERA_LABELS: Record<Era, string> = {
+  'pre-80s': 'Pre-80s',
+  '80s-90s': '80s–90s',
+  '00s-10s': '00s–10s',
+  recent: 'Recent',
+  any: 'Any',
+};
+
+const ERA_OPTIONS = ERA_VALUES.map((value) => ({ value, label: ERA_LABELS[value] }));
 
 const sectionLabelStyle: React.CSSProperties = {
   display: 'block',
@@ -75,7 +88,7 @@ export function PreferencesPanel({
     onChange({ ...preferences, moods: toggleArrayItem(preferences.moods, mood) });
   }
 
-  function handleSliderChange(field: 'tempo' | 'energy' | 'density', value: number): void {
+  function handleSliderChange(field: SliderField, value: number): void {
     onChange({ ...preferences, [field]: value });
   }
 
@@ -83,9 +96,7 @@ export function PreferencesPanel({
     onChange({ ...preferences, era });
   }
 
-  function handleToggleChange(
-    field: 'includeFamiliarArtists' | 'prioritiseObscure' | 'stayFocused',
-  ): void {
+  function handleToggleChange(field: ToggleField): void {
     onChange({ ...preferences, [field]: !preferences[field] });
   }
 
@@ -171,8 +182,8 @@ export function PreferencesPanel({
               </div>
               <input
                 type="range"
-                min={1}
-                max={10}
+                min={SLIDER_MIN}
+                max={SLIDER_MAX}
                 value={preferences[field]}
                 onChange={(e) => handleSliderChange(field, Number(e.target.value))}
                 aria-label={field}

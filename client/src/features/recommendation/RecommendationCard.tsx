@@ -107,7 +107,7 @@ export function RecommendationCard({
         <p style={{ fontSize: 13, lineHeight: 1.6 }}>
           Your next favourite album is waiting.
           <br />
-          Upload your library and hit the button.
+          Set your preferences and hit the button.
         </p>
       </div>
     );

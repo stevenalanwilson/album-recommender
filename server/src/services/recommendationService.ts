@@ -23,22 +23,10 @@ function getAnthropicClient(): Anthropic {
   return anthropicClient;
 }
 
-function tempoLabel(tempo: number): string {
-  if (tempo <= 3) return 'slow';
-  if (tempo <= 7) return 'moderate';
-  return 'fast';
-}
-
-function energyLabel(energy: number): string {
-  if (energy <= 3) return 'mellow';
-  if (energy <= 7) return 'moderate';
-  return 'intense';
-}
-
-function densityLabel(density: number): string {
-  if (density <= 3) return 'sparse';
-  if (density <= 7) return 'moderate';
-  return 'dense';
+function thresholdLabel(value: number, low: string, mid: string, high: string): string {
+  if (value <= 3) return low;
+  if (value <= 7) return mid;
+  return high;
 }
 
 function buildPreferencesSummary(preferences: RecommendationPreferences): string {
@@ -52,9 +40,9 @@ function buildPreferencesSummary(preferences: RecommendationPreferences): string
     parts.push(`mood: ${preferences.moods.join(', ')}`);
   }
 
-  parts.push(`tempo: ${tempoLabel(preferences.tempo)}`);
-  parts.push(`energy: ${energyLabel(preferences.energy)}`);
-  parts.push(`density: ${densityLabel(preferences.density)}`);
+  parts.push(`tempo: ${thresholdLabel(preferences.tempo, 'slow', 'moderate', 'fast')}`);
+  parts.push(`energy: ${thresholdLabel(preferences.energy, 'mellow', 'moderate', 'intense')}`);
+  parts.push(`density: ${thresholdLabel(preferences.density, 'sparse', 'moderate', 'dense')}`);
 
   const eraLabel = preferences.era === 'any' ? 'any era' : `the ${preferences.era} era`;
   parts.push(`era: ${eraLabel}`);
@@ -123,6 +111,11 @@ function parseRecommendationJson(raw: string): RecommendationResponse {
   }
 
   const rec = parsed as Record<string, unknown>;
+
+  // Coerce numeric year to string — LLMs occasionally omit the quotes around a year value.
+  if (typeof rec.year === 'number') {
+    rec.year = String(rec.year);
+  }
 
   if (
     typeof rec.artist !== 'string' ||

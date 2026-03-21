@@ -25,6 +25,7 @@ beforeEach(() => {
   process.env.ANTHROPIC_API_KEY = 'sk-ant-test';
 });
 
+// Intentionally non-default values so tests verify that preferences are reflected in the prompt.
 const defaultPreferences: RecommendationPreferences = {
   genres: ['Post-punk', 'Ambient'],
   moods: ['Late night', 'Melancholic'],

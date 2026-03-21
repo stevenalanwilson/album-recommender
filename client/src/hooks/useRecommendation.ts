@@ -4,8 +4,10 @@ import { HistoryEntry } from '../types/history';
 import { fetchRecommendation as apiFetchRecommendation, fetchArtwork } from '../services/apiClient';
 
 const HISTORY_STORAGE_KEY = 'album-recommender-history';
+// Kept only for the one-time cleanup below — do not read from this key.
+const LEGACY_LIBRARY_STORAGE_KEY = 'album-recommender-library';
 
-const DEFAULT_PREFERENCES: RecommendationPreferences = {
+export const DEFAULT_PREFERENCES: RecommendationPreferences = {
   genres: [],
   moods: [],
   tempo: 5,
@@ -55,6 +57,15 @@ export function useRecommendation(): UseRecommendationReturn {
   const [history, setHistory] = useState<HistoryEntry[]>(loadHistoryFromStorage);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // One-time migration: clear stale library data left over from the upload-based flow.
+  useEffect(() => {
+    try {
+      localStorage.removeItem(LEGACY_LIBRARY_STORAGE_KEY);
+    } catch {
+      // Silently ignore — localStorage may be unavailable in some environments.
+    }
+  }, []);
 
   useEffect(() => {
     saveHistoryToStorage(history);
