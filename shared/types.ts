@@ -1,4 +1,8 @@
-export type Era = 'pre-80s' | '80s-90s' | '00s-10s' | 'recent' | 'any';
+export const SLIDER_MIN = 1;
+export const SLIDER_MAX = 10;
+
+export const ERA_VALUES = ['pre-80s', '80s-90s', '00s-10s', 'recent', 'any'] as const;
+export type Era = (typeof ERA_VALUES)[number];
 
 export interface RecommendationPreferences {
   readonly genres: readonly string[];
