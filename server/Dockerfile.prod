@@ -9,15 +9,23 @@ RUN npm ci
 COPY server/ .
 COPY shared/ /shared/
 
-# Compile shared types to JS so require("@shared/types") resolves at runtime
+# Compile shared types to JS (runtime) + .d.ts (compile-time).
+# We then REPLACE the .ts file with the .d.ts so that when the server tsc build
+# resolves @shared/types via the path alias, it finds an ambient declaration file
+# rather than a .ts source file. Declaration files are not "source files" and do
+# not affect rootDir inference — preventing tsc from widening rootDir to "/" and
+# writing output to dist/app/src/index.js instead of dist/index.js.
 RUN node_modules/.bin/tsc \
+  --declaration \
   --target ES2022 \
   --module commonjs \
   --moduleResolution node \
   --esModuleInterop \
   --skipLibCheck \
   --outDir /tmp/shared-compiled \
-  /shared/types.ts
+  /shared/types.ts && \
+  cp /tmp/shared-compiled/types.d.ts /shared/types.d.ts && \
+  rm /shared/types.ts
 
 # Build server (tsc compiles src/ -> dist/)
 RUN npm run build
