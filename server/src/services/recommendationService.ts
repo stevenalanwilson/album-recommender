@@ -139,12 +139,15 @@ export async function getRecommendation(
 ): Promise<RecommendationResponse> {
   const client = getAnthropicClient();
 
-  const message = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 800,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: buildPrompt(request) }],
-  });
+  const message = await client.messages.create(
+    {
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 800,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: buildPrompt(request) }],
+    },
+    { signal: AbortSignal.timeout(15_000) },
+  );
 
   const textBlock = message.content.find((block) => block.type === 'text');
   if (!textBlock || textBlock.type !== 'text') {

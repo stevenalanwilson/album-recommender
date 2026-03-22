@@ -1,0 +1,6 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "client/Dockerfile.prod"
+
+[build.args]
+VITE_API_URL = "https://${{server.RAILWAY_PUBLIC_DOMAIN}}"

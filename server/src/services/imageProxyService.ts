@@ -23,11 +23,34 @@ export async function fetchImageBytes(url: string): Promise<ImageResult> {
     throw new Error(`Untrusted image hostname: ${parsedUrl.hostname}`);
   }
 
+  const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Image fetch failed with status ${res.status}`);
 
-  const arrayBuffer = await res.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
+  const contentLength = res.headers.get('content-length');
+  if (contentLength && parseInt(contentLength, 10) > MAX_BYTES) {
+    throw new Error('Image exceeds maximum allowed size');
+  }
+
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error('No response body');
+
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    totalBytes += value.byteLength;
+    if (totalBytes > MAX_BYTES) {
+      await reader.cancel();
+      throw new Error('Image exceeds maximum allowed size');
+    }
+    chunks.push(value);
+  }
+
+  const buffer = Buffer.concat(chunks);
   const contentType = res.headers.get('content-type') ?? 'image/jpeg';
 
   return { buffer, contentType };

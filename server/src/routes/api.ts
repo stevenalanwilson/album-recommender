@@ -14,10 +14,26 @@ const recommendLimiter = rateLimit({
   message: { error: 'Too many requests, please try again in a minute.' },
 });
 
+const artworkLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again in a minute.' },
+});
+
+const imageLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again in a minute.' },
+});
+
 apiRouter.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok' });
 });
 
 apiRouter.post('/recommend', recommendLimiter, handleRecommend);
-apiRouter.get('/artwork', handleArtwork);
-apiRouter.get('/image', handleImage);
+apiRouter.get('/artwork', artworkLimiter, handleArtwork);
+apiRouter.get('/image', imageLimiter, handleImage);

@@ -1,0 +1,39 @@
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Install all dependencies (including devDeps for tsc)
+COPY server/package*.json ./
+RUN npm ci
+
+# Copy source files
+COPY server/ .
+COPY shared/ /shared/
+
+# Compile shared types to JS so they resolve at runtime
+RUN node_modules/.bin/tsc \
+  --target ES2022 \
+  --module commonjs \
+  --moduleResolution node \
+  --esModuleInterop \
+  --skipLibCheck \
+  --outDir /tmp/shared-compiled \
+  /shared/types.ts
+
+# Build server
+RUN npm run build
+
+# Place compiled shared where @shared/* will resolve at runtime
+RUN mkdir -p dist/node_modules/@shared && \
+    cp /tmp/shared-compiled/types.js dist/node_modules/@shared/types.js
+
+# ---- Runtime image ----
+FROM node:20-alpine
+WORKDIR /app
+
+COPY --from=builder /app/package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 3001
+CMD ["node", "dist/index.js"]
