@@ -1,15 +1,15 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 WORKDIR /app
 
-# Install all dependencies (including devDeps for tsc)
+# Install all dependencies (devDeps needed for tsc)
 COPY server/package*.json ./
 RUN npm ci
 
-# Copy source files
+# Copy source and shared types
 COPY server/ .
 COPY shared/ /shared/
 
-# Compile shared types to JS so they resolve at runtime
+# Compile shared types to JS so require("@shared/types") resolves at runtime
 RUN node_modules/.bin/tsc \
   --target ES2022 \
   --module commonjs \
@@ -19,21 +19,18 @@ RUN node_modules/.bin/tsc \
   --outDir /tmp/shared-compiled \
   /shared/types.ts
 
-# Build server
+# Build server (tsc compiles src/ -> dist/)
 RUN npm run build
 
-# Place compiled shared where @shared/* will resolve at runtime
+# Fail loudly if tsc produced no output
+RUN test -f dist/index.js || (echo "ERROR: dist/index.js missing after build" && exit 1)
+
+# Place compiled shared where Node.js resolves require("@shared/types")
 RUN mkdir -p dist/node_modules/@shared && \
     cp /tmp/shared-compiled/types.js dist/node_modules/@shared/types.js
 
-# ---- Runtime image ----
-FROM node:20-alpine
-WORKDIR /app
-
-COPY --from=builder /app/package*.json ./
-RUN npm ci --omit=dev
-
-COPY --from=builder /app/dist ./dist
+# Remove dev dependencies to keep image lean
+RUN npm prune --omit=dev
 
 EXPOSE 3001
 CMD ["node", "dist/index.js"]
