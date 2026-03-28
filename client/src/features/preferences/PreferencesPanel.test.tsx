@@ -9,17 +9,17 @@ const defaultPreferences = DEFAULT_PREFERENCES;
 describe('PreferencesPanel', () => {
   it('renders all genre pills', () => {
     render(<PreferencesPanel preferences={defaultPreferences} onChange={vi.fn()} />);
-    expect(screen.getByRole('button', { name: 'Electronic' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Post-punk' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Ambient' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Classical' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Electronic genre' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Post-punk genre' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ambient genre' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Classical genre' })).toBeInTheDocument();
   });
 
   it('renders all mood pills', () => {
     render(<PreferencesPanel preferences={defaultPreferences} onChange={vi.fn()} />);
-    expect(screen.getByRole('button', { name: 'Late night' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Melancholic' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'High energy' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Late night mood' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Melancholic mood' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'High energy mood' })).toBeInTheDocument();
   });
 
   it('renders tempo, energy, and density sliders', () => {
@@ -38,16 +38,20 @@ describe('PreferencesPanel', () => {
 
   it('renders discovery checkboxes', () => {
     render(<PreferencesPanel preferences={defaultPreferences} onChange={vi.fn()} />);
-    expect(screen.getByRole('checkbox', { name: 'Include familiar artists' })).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: 'Prioritise obscure picks' })).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: 'Stay focused' })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Allow well-known artists' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('checkbox', { name: 'Underground & lesser-known only' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('checkbox', { name: 'Stick strictly to my preferences' }),
+    ).toBeInTheDocument();
   });
 
   it('clicking a genre pill adds it to genres', async () => {
     const onChange = vi.fn();
     render(<PreferencesPanel preferences={defaultPreferences} onChange={onChange} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Jazz' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Jazz genre' }));
 
     expect(onChange).toHaveBeenCalledWith({ ...defaultPreferences, genres: ['Jazz'] });
   });
@@ -57,7 +61,7 @@ describe('PreferencesPanel', () => {
     const prefs = { ...defaultPreferences, genres: ['Jazz', 'Folk'] };
     render(<PreferencesPanel preferences={prefs} onChange={onChange} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Jazz' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Jazz genre' }));
 
     expect(onChange).toHaveBeenCalledWith({ ...prefs, genres: ['Folk'] });
   });
@@ -66,7 +70,7 @@ describe('PreferencesPanel', () => {
     const onChange = vi.fn();
     render(<PreferencesPanel preferences={defaultPreferences} onChange={onChange} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Chill' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Chill mood' }));
 
     expect(onChange).toHaveBeenCalledWith({ ...defaultPreferences, moods: ['Chill'] });
   });
@@ -76,7 +80,7 @@ describe('PreferencesPanel', () => {
     const prefs = { ...defaultPreferences, moods: ['Chill', 'Focus'] };
     render(<PreferencesPanel preferences={prefs} onChange={onChange} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Chill' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Chill mood' }));
 
     expect(onChange).toHaveBeenCalledWith({ ...prefs, moods: ['Focus'] });
   });
@@ -104,7 +108,7 @@ describe('PreferencesPanel', () => {
     const onChange = vi.fn();
     render(<PreferencesPanel preferences={defaultPreferences} onChange={onChange} />);
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Include familiar artists' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Allow well-known artists' }));
 
     expect(onChange).toHaveBeenCalledWith({
       ...defaultPreferences,
@@ -116,7 +120,9 @@ describe('PreferencesPanel', () => {
     const onChange = vi.fn();
     render(<PreferencesPanel preferences={defaultPreferences} onChange={onChange} />);
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Prioritise obscure picks' }));
+    await userEvent.click(
+      screen.getByRole('checkbox', { name: 'Underground & lesser-known only' }),
+    );
 
     expect(onChange).toHaveBeenCalledWith({ ...defaultPreferences, prioritiseObscure: true });
   });
@@ -125,7 +131,9 @@ describe('PreferencesPanel', () => {
     const onChange = vi.fn();
     render(<PreferencesPanel preferences={defaultPreferences} onChange={onChange} />);
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Stay focused' }));
+    await userEvent.click(
+      screen.getByRole('checkbox', { name: 'Stick strictly to my preferences' }),
+    );
 
     expect(onChange).toHaveBeenCalledWith({ ...defaultPreferences, stayFocused: true });
   });
@@ -134,7 +142,13 @@ describe('PreferencesPanel', () => {
     const prefs = { ...defaultPreferences, genres: ['Jazz'] };
     render(<PreferencesPanel preferences={prefs} onChange={vi.fn()} />);
 
-    expect(screen.getByRole('button', { name: 'Jazz' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: 'Folk' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: 'Jazz genre' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'Folk genre' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
   });
 });

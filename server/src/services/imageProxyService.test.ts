@@ -8,14 +8,34 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+function makeBodyStream(data: Buffer): ReadableStream<Uint8Array<ArrayBuffer>> {
+  return new ReadableStream({
+    start(controller) {
+      controller.enqueue(new Uint8Array(data.buffer as ArrayBuffer));
+      controller.close();
+    },
+  });
+}
+
+function makeResponse(
+  contentType: string,
+  body: Buffer | null = null,
+  status = 200,
+): Partial<Response> {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    headers: {
+      get: (key: string) => (key === 'content-type' ? contentType : null),
+    } as unknown as Headers,
+    body: body ? makeBodyStream(body) : null,
+  };
+}
+
 describe('fetchImageBytes', () => {
   it('fetches an image from coverartarchive.org', async () => {
     const fakeBuffer = Buffer.from('fake-image-data');
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      arrayBuffer: async () => fakeBuffer.buffer,
-      headers: { get: () => 'image/jpeg' },
-    });
+    mockFetch.mockResolvedValueOnce(makeResponse('image/jpeg', fakeBuffer));
 
     const result = await fetchImageBytes('https://coverartarchive.org/release-group/abc/front');
 
@@ -25,11 +45,7 @@ describe('fetchImageBytes', () => {
 
   it('fetches an image from a subdomain of archive.org', async () => {
     const fakeBuffer = Buffer.from('fake-image-data');
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      arrayBuffer: async () => fakeBuffer.buffer,
-      headers: { get: () => 'image/png' },
-    });
+    mockFetch.mockResolvedValueOnce(makeResponse('image/png', fakeBuffer));
 
     const result = await fetchImageBytes(
       'https://ia800501.us.archive.org/download/mbid-abc/thumb.jpg',
@@ -59,11 +75,7 @@ describe('fetchImageBytes', () => {
   });
 
   it('throws when the response content-type is not an image', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      headers: { get: () => 'text/html' },
-      body: null,
-    });
+    mockFetch.mockResolvedValueOnce(makeResponse('text/html'));
 
     await expect(fetchImageBytes('https://archive.org/download/mbid/img.jpg')).rejects.toThrow(
       'Unexpected content-type',
