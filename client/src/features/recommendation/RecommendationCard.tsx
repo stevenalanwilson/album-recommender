@@ -5,6 +5,7 @@ import {
   buildAppleMusicSearchUrl,
   buildSpotifySearchUrl,
 } from '../../services/apiClient';
+import { ServiceLinks } from '../../components/ServiceLinks';
 
 interface RecommendationCardProps {
   recommendation: RecommendationResponse | null;
@@ -19,6 +20,8 @@ export function RecommendationCard({
   isLoading,
   error,
 }: RecommendationCardProps): React.ReactElement {
+  const [imgErrored, setImgErrored] = useState(false);
+
   if (isLoading) {
     return (
       <div
@@ -117,8 +120,6 @@ export function RecommendationCard({
     );
   }
 
-  const [imgErrored, setImgErrored] = useState(false);
-
   const year = recommendation.year || artworkResponse?.year || '—';
   const appleMusicUrl =
     artworkResponse?.appleMusicUrl ??
@@ -215,71 +216,11 @@ export function RecommendationCard({
             {year}
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <a
-              href={appleMusicUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="service-link"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: 12,
-                color: 'var(--muted)',
-                textDecoration: 'none',
-                border: '1px solid var(--border)',
-                borderRadius: 6,
-                padding: '6px 12px',
-                width: 'fit-content',
-              }}
-            >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <circle cx="5" cy="5" r="3.5" />
-                <line x1="8" y1="8" x2="11" y2="11" />
-              </svg>
-              {appleMusicLabel}
-            </a>
-            <a
-              href={spotifyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="service-link"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: 12,
-                color: 'var(--muted)',
-                textDecoration: 'none',
-                border: '1px solid var(--border)',
-                borderRadius: 6,
-                padding: '6px 12px',
-                width: 'fit-content',
-              }}
-            >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <circle cx="6" cy="6" r="5" />
-                <path
-                  d="M3.5 4.5c1.5-.5 3.5-.5 5 .5M3 6.5c1.3-.4 3.2-.4 4.5.5M3.5 8.5c1-.3 2.5-.3 3.5.3"
-                  strokeLinecap="round"
-                />
-              </svg>
-              Search in Spotify
-            </a>
+            <ServiceLinks
+              appleMusicUrl={appleMusicUrl}
+              appleMusicLabel={appleMusicLabel}
+              spotifyUrl={spotifyUrl}
+            />
           </div>
         </div>
       </div>

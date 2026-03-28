@@ -67,7 +67,10 @@ function buildPrompt(request: RecommendationRequest): string {
 
   const avoidStr =
     request.alreadySuggested.length > 0
-      ? `\n\nIMPORTANT — do NOT recommend any of these previously suggested albums (format is "Artist – Album"): ${request.alreadySuggested.slice(0, 120).join(', ')}`
+      ? `\n\nIMPORTANT — do NOT recommend any of these previously suggested albums (format is "Artist – Album"): ${request.alreadySuggested
+          .map((s) => s.replace(/[\r\n]/g, ' '))
+          .slice(0, 120)
+          .join(', ')}`
       : '';
 
   return `Recommend ONE album for someone with the following preferences: ${summary}.
@@ -167,19 +170,20 @@ export async function getRecommendation(
 
   // Accumulate duplicates returned across attempts so each retry prompt is stricter.
   const seen = [...request.alreadySuggested];
+  let lastRec: RecommendationResponse | null = null;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const prompt = buildPrompt({ ...request, alreadySuggested: seen });
-    const rec = await callClaude(client, prompt);
+    lastRec = await callClaude(client, prompt);
 
-    if (!isDuplicate(rec, request.alreadySuggested)) {
-      return rec;
+    if (!isDuplicate(lastRec, request.alreadySuggested)) {
+      return lastRec;
     }
 
     // Add the duplicate to seen so the next attempt explicitly avoids it too.
-    seen.push(`${rec.artist} – ${rec.album}`);
+    seen.push(`${lastRec.artist} – ${lastRec.album}`);
   }
 
-  // All attempts returned duplicates — return the last one rather than failing the request.
-  return callClaude(client, buildPrompt({ ...request, alreadySuggested: seen }));
+  // All attempts returned duplicates — return the last result rather than making another call.
+  return lastRec!;
 }

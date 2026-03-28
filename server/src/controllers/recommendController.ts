@@ -55,8 +55,8 @@ export async function handleRecommend(req: Request, res: Response): Promise<void
     return;
   }
 
-  if (!isStringArray(body.alreadySuggested)) {
-    res.status(400).json({ error: 'alreadySuggested must be an array of strings' });
+  if (!isStringArray(body.alreadySuggested) || body.alreadySuggested.length > 150) {
+    res.status(400).json({ error: 'alreadySuggested must be an array of strings (max 150)' });
     return;
   }
 

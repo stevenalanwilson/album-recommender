@@ -41,7 +41,7 @@ function saveHistoryToStorage(history: HistoryEntry[]): void {
 
 interface UseRecommendationReturn {
   preferences: RecommendationPreferences;
-  updatePreferences: (partial: Partial<RecommendationPreferences>) => void;
+  updatePreferences: (prefs: RecommendationPreferences) => void;
   recommendation: RecommendationResponse | null;
   artworkResponse: ArtworkResponse | null;
   history: HistoryEntry[];
@@ -136,8 +136,8 @@ export function useRecommendation(): UseRecommendationReturn {
     });
   }, []);
 
-  const updatePreferences = useCallback((partial: Partial<RecommendationPreferences>): void => {
-    setPreferences((prev) => ({ ...prev, ...partial }));
+  const updatePreferences = useCallback((prefs: RecommendationPreferences): void => {
+    setPreferences(prefs);
   }, []);
 
   const fetchRecommendation = useCallback(async (): Promise<void> => {

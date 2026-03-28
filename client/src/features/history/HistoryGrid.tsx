@@ -5,6 +5,7 @@ import {
   buildAppleMusicSearchUrl,
   buildSpotifySearchUrl,
 } from '../../services/apiClient';
+import { ServiceLinks } from '../../components/ServiceLinks';
 
 const VISIBLE_COUNT = 9;
 
@@ -92,50 +93,12 @@ function HistoryItem({ entry, onRemove }: HistoryItemProps): React.ReactElement 
             padding: '0 12px',
           }}
         >
-          <a
-            href={appleMusicUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="service-link"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              fontSize: 10,
-              color: 'var(--text)',
-              textDecoration: 'none',
-              border: '1px solid var(--border2)',
-              borderRadius: 6,
-              padding: '5px 10px',
-              width: '100%',
-              justifyContent: 'center',
-              letterSpacing: '0.04em',
-            }}
-          >
-            Apple Music
-          </a>
-          <a
-            href={spotifyUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="service-link"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              fontSize: 10,
-              color: 'var(--text)',
-              textDecoration: 'none',
-              border: '1px solid var(--border2)',
-              borderRadius: 6,
-              padding: '5px 10px',
-              width: '100%',
-              justifyContent: 'center',
-              letterSpacing: '0.04em',
-            }}
-          >
-            Spotify
-          </a>
+          <ServiceLinks
+            appleMusicUrl={appleMusicUrl}
+            appleMusicLabel="Apple Music"
+            spotifyUrl={spotifyUrl}
+            compact
+          />
           <button
             type="button"
             onClick={(e) => {
