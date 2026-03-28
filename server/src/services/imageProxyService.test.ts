@@ -10,7 +10,7 @@ beforeEach(() => {
 
 function makeBodyStream(data: Buffer): ReadableStream<Uint8Array<ArrayBuffer>> {
   return new ReadableStream({
-    start(controller) {
+    start(controller): void {
       controller.enqueue(new Uint8Array(data.buffer as ArrayBuffer));
       controller.close();
     },
