@@ -14,23 +14,17 @@ export default function App(): React.ReactElement {
     isLoading,
     error,
     fetchRecommendation,
+    clearHistory,
+    removeFromHistory,
   } = useRecommendation();
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        zIndex: 1,
-        maxWidth: 680,
-        margin: '0 auto',
-        padding: '48px 24px 80px',
-      }}
-    >
-      <header style={{ marginBottom: 56 }}>
+    <div className="app-layout">
+      <header className="app-header">
         <h1
           style={{
             fontFamily: 'var(--serif)',
-            fontSize: 42,
+            fontSize: 'clamp(28px, 8vw, 42px)',
             fontWeight: 400,
             fontStyle: 'italic',
             letterSpacing: '-0.5px',
@@ -52,44 +46,53 @@ export default function App(): React.ReactElement {
         </p>
       </header>
 
-      <PreferencesPanel preferences={preferences} onChange={updatePreferences} />
+      <div className="app-sidebar">
+        <PreferencesPanel preferences={preferences} onChange={updatePreferences} />
+      </div>
 
-      <button
-        type="button"
-        onClick={fetchRecommendation}
-        disabled={isLoading}
-        style={{
-          width: '100%',
-          padding: '16px',
-          fontSize: 14,
-          letterSpacing: '0.04em',
-          borderRadius: 'var(--radius)',
-          marginBottom: 40,
-          background: 'var(--accent)',
-          border: '1px solid var(--accent)',
-          color: '#0e0e0f',
-          fontFamily: 'var(--mono)',
-          fontWeight: 500,
-          cursor: isLoading ? 'not-allowed' : 'pointer',
-          opacity: isLoading ? 0.35 : 1,
-        }}
-      >
-        {isLoading ? 'Finding your next favourite…' : 'Find me something to listen to'}
-      </button>
+      <div className="app-main">
+        <RecommendationCard
+          recommendation={recommendation}
+          artworkResponse={artworkResponse}
+          isLoading={isLoading}
+          error={error}
+        />
 
-      <RecommendationCard
-        recommendation={recommendation}
-        artworkResponse={artworkResponse}
-        isLoading={isLoading}
-        error={error}
-      />
+        <button
+          type="button"
+          className="app-cta-button"
+          onClick={fetchRecommendation}
+          disabled={isLoading}
+          style={{
+            width: '100%',
+            padding: '16px',
+            fontSize: 14,
+            letterSpacing: '0.04em',
+            borderRadius: 'var(--radius)',
+            marginTop: 8,
+            background: 'var(--accent)',
+            border: '1px solid var(--accent)',
+            color: '#0e0e0f',
+            fontFamily: 'var(--mono)',
+            fontWeight: 500,
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            opacity: isLoading ? 0.35 : 1,
+          }}
+        >
+          {isLoading ? 'Finding your next favourite…' : 'Find me something to listen to'}
+        </button>
 
-      {history.length > 1 && (
-        <>
-          <div style={{ height: 1, background: 'var(--border)', margin: '40px 0' }} />
-          <HistoryGrid history={history.slice(1)} />
-        </>
-      )}
+        {history.length > 1 && (
+          <>
+            <div style={{ height: 1, background: 'var(--border)', margin: '40px 0' }} />
+            <HistoryGrid
+              history={history.slice(1)}
+              onClear={clearHistory}
+              onRemove={removeFromHistory}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }

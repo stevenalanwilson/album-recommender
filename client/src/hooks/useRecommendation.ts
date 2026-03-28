@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { RecommendationPreferences, RecommendationResponse, ArtworkResponse } from '@shared/types';
 import { HistoryEntry } from '../types/history';
 import { fetchRecommendation as apiFetchRecommendation, fetchArtwork } from '../services/apiClient';
@@ -48,6 +48,8 @@ interface UseRecommendationReturn {
   isLoading: boolean;
   error: string | null;
   fetchRecommendation: () => Promise<void>;
+  clearHistory: () => void;
+  removeFromHistory: (id: string) => void;
 }
 
 export function useRecommendation(): UseRecommendationReturn {
@@ -57,6 +59,11 @@ export function useRecommendation(): UseRecommendationReturn {
   const [history, setHistory] = useState<HistoryEntry[]>(loadHistoryFromStorage);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Ref so fetchRecommendation can read the current history without needing it
+  // in its dependency array. A ref is always up to date; a stale closure is not.
+  const historyRef = useRef(history);
+  historyRef.current = history;
 
   // One-time migration: clear stale library data left over from the upload-based flow.
   useEffect(() => {
@@ -112,6 +119,23 @@ export function useRecommendation(): UseRecommendationReturn {
     };
   }, [history.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const clearHistory = useCallback((): void => {
+    setHistory([]);
+    setRecommendation(null);
+    setArtworkResponse(null);
+  }, []);
+
+  const removeFromHistory = useCallback((id: string): void => {
+    setHistory((prev) => {
+      const next = prev.filter((e) => e.id !== id);
+      if (prev[0]?.id === id) {
+        setRecommendation(null);
+        setArtworkResponse(null);
+      }
+      return next;
+    });
+  }, []);
+
   const updatePreferences = useCallback((partial: Partial<RecommendationPreferences>): void => {
     setPreferences((prev) => ({ ...prev, ...partial }));
   }, []);
@@ -120,13 +144,9 @@ export function useRecommendation(): UseRecommendationReturn {
     setIsLoading(true);
     setError(null);
 
-    // Read the current history inside a functional update so this callback does not
-    // need `history` in its dependency array — avoiding recreation after every recommendation.
-    let alreadySuggested: string[] = [];
-    setHistory((prev) => {
-      alreadySuggested = prev.map((e) => e.recommendation.album);
-      return prev;
-    });
+    const alreadySuggested = historyRef.current.map(
+      (e) => `${e.recommendation.artist} – ${e.recommendation.album}`,
+    );
 
     try {
       const rec = await apiFetchRecommendation({
@@ -144,7 +164,7 @@ export function useRecommendation(): UseRecommendationReturn {
         recommendation: rec,
         artworkResponse: artwork,
       };
-      setHistory((prev) => [newEntry, ...prev]);
+      setHistory((prev) => [newEntry, ...prev].slice(0, 50));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
     } finally {
@@ -161,5 +181,7 @@ export function useRecommendation(): UseRecommendationReturn {
     isLoading,
     error,
     fetchRecommendation,
+    clearHistory,
+    removeFromHistory,
   };
 }

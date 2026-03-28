@@ -53,12 +53,12 @@ const sectionLabelStyle: React.CSSProperties = {
   color: 'var(--muted)',
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
-  marginBottom: 8,
+  marginBottom: 6,
 };
 
 const pillBaseStyle: React.CSSProperties = {
   display: 'inline-block',
-  padding: '5px 12px',
+  padding: '6px 12px',
   borderRadius: 20,
   fontSize: 12,
   fontFamily: 'var(--mono)',
@@ -101,11 +101,11 @@ export function PreferencesPanel({
   }
 
   return (
-    <div style={{ marginBottom: 32 }}>
+    <div style={{ marginBottom: 0 }}>
       {/* Genres */}
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: 12 }}>
         <label style={sectionLabelStyle}>Genres</label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {GENRE_OPTIONS.map((genre) => {
             const isSelected = preferences.genres.includes(genre);
             return (
@@ -113,6 +113,7 @@ export function PreferencesPanel({
                 key={genre}
                 type="button"
                 onClick={() => handleGenreToggle(genre)}
+                className="pill-button"
                 aria-pressed={isSelected}
                 style={{
                   ...pillBaseStyle,
@@ -129,9 +130,9 @@ export function PreferencesPanel({
       </div>
 
       {/* Moods */}
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: 12 }}>
         <label style={sectionLabelStyle}>Mood</label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {MOOD_OPTIONS.map((mood) => {
             const isSelected = preferences.moods.includes(mood);
             return (
@@ -139,6 +140,7 @@ export function PreferencesPanel({
                 key={mood}
                 type="button"
                 onClick={() => handleMoodToggle(mood)}
+                className="pill-button"
                 aria-pressed={isSelected}
                 style={{
                   ...pillBaseStyle,
@@ -155,16 +157,31 @@ export function PreferencesPanel({
       </div>
 
       {/* Sliders */}
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: 12 }}>
         <label style={sectionLabelStyle}>Feel</label>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {(
             [
-              { field: 'tempo', minLabel: 'Slow', maxLabel: 'Fast' },
-              { field: 'energy', minLabel: 'Mellow', maxLabel: 'Intense' },
-              { field: 'density', minLabel: 'Sparse', maxLabel: 'Dense' },
+              {
+                field: 'tempo',
+                minLabel: 'Slow',
+                maxLabel: 'Fast',
+                description: 'Pace of the music',
+              },
+              {
+                field: 'energy',
+                minLabel: 'Mellow',
+                maxLabel: 'Intense',
+                description: 'Intensity and drive',
+              },
+              {
+                field: 'density',
+                minLabel: 'Sparse',
+                maxLabel: 'Dense',
+                description: 'Layering and arrangement',
+              },
             ] as const
-          ).map(({ field, minLabel, maxLabel }) => (
+          ).map(({ field, minLabel, maxLabel, description }) => (
             <div key={field}>
               <div
                 style={{
@@ -177,7 +194,10 @@ export function PreferencesPanel({
                 }}
               >
                 <span>{minLabel}</span>
-                <span style={{ textTransform: 'capitalize' }}>{field}</span>
+                <span style={{ textAlign: 'center' }}>
+                  <span style={{ textTransform: 'capitalize', display: 'block' }}>{field}</span>
+                  <span style={{ fontSize: 10, fontStyle: 'italic' }}>{description}</span>
+                </span>
                 <span>{maxLabel}</span>
               </div>
               <input
@@ -195,7 +215,7 @@ export function PreferencesPanel({
       </div>
 
       {/* Era */}
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: 12 }}>
         <label style={sectionLabelStyle}>Era</label>
         <div
           style={{
@@ -213,11 +233,12 @@ export function PreferencesPanel({
               <button
                 key={value}
                 type="button"
+                className="era-button"
                 onClick={() => handleEraChange(value)}
                 aria-pressed={isSelected}
                 style={{
                   flex: 1,
-                  padding: '6px 4px',
+                  padding: '7px 4px',
                   borderRadius: 6,
                   fontSize: 11,
                   fontFamily: 'var(--mono)',
@@ -238,12 +259,12 @@ export function PreferencesPanel({
       {/* Discovery toggles */}
       <div>
         <label style={sectionLabelStyle}>Discovery</label>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {(
             [
-              { field: 'includeFamiliarArtists', label: 'Include familiar artists' },
-              { field: 'prioritiseObscure', label: 'Prioritise obscure picks' },
-              { field: 'stayFocused', label: 'Stay focused' },
+              { field: 'includeFamiliarArtists', label: 'Allow well-known artists' },
+              { field: 'prioritiseObscure', label: 'Underground & lesser-known only' },
+              { field: 'stayFocused', label: 'Stick strictly to my preferences' },
             ] as const
           ).map(({ field, label }) => (
             <label
@@ -251,8 +272,8 @@ export function PreferencesPanel({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 10,
-                fontSize: 13,
+                gap: 8,
+                fontSize: 12,
                 fontFamily: 'var(--mono)',
                 cursor: 'pointer',
                 color: 'var(--text)',

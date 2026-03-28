@@ -1,33 +1,39 @@
 import React, { useState } from 'react';
 import { HistoryEntry } from '../../types/history';
-import { getProxiedArtworkUrl, buildAppleMusicSearchUrl } from '../../services/apiClient';
+import {
+  getProxiedArtworkUrl,
+  buildAppleMusicSearchUrl,
+  buildSpotifySearchUrl,
+} from '../../services/apiClient';
+
+const VISIBLE_COUNT = 9;
 
 interface HistoryGridProps {
   history: HistoryEntry[];
+  onClear: () => void;
+  onRemove: (id: string) => void;
 }
 
 interface HistoryItemProps {
   entry: HistoryEntry;
+  onRemove: (id: string) => void;
 }
 
-function HistoryItem({ entry }: HistoryItemProps): React.ReactElement {
+function HistoryItem({ entry, onRemove }: HistoryItemProps): React.ReactElement {
   const [isHovered, setIsHovered] = useState(false);
   const [imgErrored, setImgErrored] = useState(false);
 
   const appleMusicUrl =
     entry.artworkResponse.appleMusicUrl ??
     buildAppleMusicSearchUrl(entry.recommendation.artist, entry.recommendation.album);
+  const spotifyUrl = buildSpotifySearchUrl(entry.recommendation.artist, entry.recommendation.album);
 
   return (
-    <a
-      href={appleMusicUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <div
+      onPointerEnter={() => setIsHovered(true)}
+      onPointerLeave={() => setIsHovered(false)}
       style={{
         display: 'block',
-        textDecoration: 'none',
         background: 'var(--surface)',
         border: `1px solid ${isHovered ? 'var(--border2)' : 'var(--border)'}`,
         borderRadius: 10,
@@ -71,34 +77,86 @@ function HistoryItem({ entry }: HistoryItemProps): React.ReactElement {
         )}
 
         <div
+          className="history-overlay"
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'rgba(14,14,15,0.75)',
+            background: 'rgba(14,14,15,0.82)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 6,
+            gap: 8,
             opacity: isHovered ? 1 : 0,
             transition: 'opacity 0.2s',
+            padding: '0 12px',
           }}
         >
-          <span style={{ fontFamily: 'var(--serif)', fontSize: 22, color: 'var(--accent)' }}>
-            ♪
-          </span>
-          <span
+          <a
+            href={appleMusicUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="service-link"
             style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
               fontSize: 10,
               color: 'var(--text)',
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              textAlign: 'center',
-              padding: '0 8px',
+              textDecoration: 'none',
+              border: '1px solid var(--border2)',
+              borderRadius: 6,
+              padding: '5px 10px',
+              width: '100%',
+              justifyContent: 'center',
+              letterSpacing: '0.04em',
             }}
           >
-            Open in Apple Music
-          </span>
+            Apple Music
+          </a>
+          <a
+            href={spotifyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="service-link"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: 10,
+              color: 'var(--text)',
+              textDecoration: 'none',
+              border: '1px solid var(--border2)',
+              borderRadius: 6,
+              padding: '5px 10px',
+              width: '100%',
+              justifyContent: 'center',
+              letterSpacing: '0.04em',
+            }}
+          >
+            Spotify
+          </a>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(entry.id);
+            }}
+            style={{
+              marginTop: 2,
+              fontSize: 10,
+              color: 'var(--muted)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              fontFamily: 'var(--mono)',
+              padding: '2px 8px',
+            }}
+          >
+            Remove
+          </button>
         </div>
       </div>
 
@@ -131,35 +189,104 @@ function HistoryItem({ entry }: HistoryItemProps): React.ReactElement {
           {entry.recommendation.year}
         </div>
       </div>
-    </a>
+    </div>
   );
 }
 
-export function HistoryGrid({ history }: HistoryGridProps): React.ReactElement {
+export function HistoryGrid({ history, onClear, onRemove }: HistoryGridProps): React.ReactElement {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const visible = isExpanded ? history : history.slice(0, VISIBLE_COUNT);
+  const hiddenCount = history.length - VISIBLE_COUNT;
+
   return (
     <section>
-      <h3
+      <div
         style={{
-          fontSize: 11,
-          color: 'var(--muted)',
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           marginBottom: 16,
         }}
       >
-        Previously suggested
-      </h3>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-          gap: 16,
-        }}
-      >
-        {history.map((entry) => (
-          <HistoryItem key={entry.id} entry={entry} />
+        <h3
+          style={{
+            fontSize: 11,
+            color: 'var(--muted)',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Previously suggested
+        </h3>
+        <button
+          type="button"
+          onClick={onClear}
+          style={{
+            fontSize: 11,
+            color: 'var(--muted)',
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            background: 'none',
+            border: '1px solid var(--border)',
+            borderRadius: 6,
+            padding: '4px 10px',
+            fontFamily: 'var(--mono)',
+            cursor: 'pointer',
+          }}
+        >
+          Clear
+        </button>
+      </div>
+      <div className="history-grid">
+        {visible.map((entry) => (
+          <HistoryItem key={entry.id} entry={entry} onRemove={onRemove} />
         ))}
       </div>
+      {hiddenCount > 0 && !isExpanded && (
+        <button
+          type="button"
+          onClick={() => setIsExpanded(true)}
+          style={{
+            marginTop: 16,
+            width: '100%',
+            padding: '10px',
+            fontSize: 11,
+            color: 'var(--muted)',
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            background: 'none',
+            border: '1px solid var(--border)',
+            borderRadius: 6,
+            fontFamily: 'var(--mono)',
+            cursor: 'pointer',
+          }}
+        >
+          Show {hiddenCount} more
+        </button>
+      )}
+      {isExpanded && history.length > VISIBLE_COUNT && (
+        <button
+          type="button"
+          onClick={() => setIsExpanded(false)}
+          style={{
+            marginTop: 16,
+            width: '100%',
+            padding: '10px',
+            fontSize: 11,
+            color: 'var(--muted)',
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            background: 'none',
+            border: '1px solid var(--border)',
+            borderRadius: 6,
+            fontFamily: 'var(--mono)',
+            cursor: 'pointer',
+          }}
+        >
+          Show less
+        </button>
+      )}
     </section>
   );
 }

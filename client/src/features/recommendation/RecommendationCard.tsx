@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { RecommendationResponse, ArtworkResponse } from '@shared/types';
-import { getProxiedArtworkUrl, buildAppleMusicSearchUrl } from '../../services/apiClient';
+import {
+  getProxiedArtworkUrl,
+  buildAppleMusicSearchUrl,
+  buildSpotifySearchUrl,
+} from '../../services/apiClient';
 
 interface RecommendationCardProps {
   recommendation: RecommendationResponse | null;
@@ -27,7 +31,7 @@ export function RecommendationCard({
           background: 'var(--surface)',
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius)',
-          marginBottom: 48,
+          marginBottom: 16,
         }}
       >
         <div
@@ -63,7 +67,7 @@ export function RecommendationCard({
           borderRadius: 'var(--radius)',
           padding: '48px 28px',
           textAlign: 'center',
-          marginBottom: 48,
+          marginBottom: 16,
         }}
       >
         <div
@@ -91,7 +95,7 @@ export function RecommendationCard({
           padding: '48px 28px',
           textAlign: 'center',
           color: 'var(--muted)',
-          marginBottom: 48,
+          marginBottom: 16,
         }}
       >
         <div
@@ -122,6 +126,7 @@ export function RecommendationCard({
   const appleMusicLabel = artworkResponse?.appleMusicUrl
     ? 'Open in Apple Music'
     : 'Search in Apple Music';
+  const spotifyUrl = buildSpotifySearchUrl(recommendation.artist, recommendation.album);
 
   return (
     <div
@@ -134,12 +139,10 @@ export function RecommendationCard({
         marginBottom: 48,
       }}
     >
-      <div style={{ display: 'flex', gap: 24, padding: 28 }}>
+      <div className="recommendation-card-content" style={{ display: 'flex', gap: 24 }}>
         <div
+          className="recommendation-card-artwork"
           style={{
-            width: 140,
-            height: 140,
-            flexShrink: 0,
             borderRadius: 8,
             overflow: 'hidden',
             background: 'var(--surface2)',
@@ -211,41 +214,78 @@ export function RecommendationCard({
           >
             {year}
           </div>
-          <a
-            href={appleMusicUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              fontSize: 12,
-              color: 'var(--muted)',
-              textDecoration: 'none',
-              border: '1px solid var(--border)',
-              borderRadius: 6,
-              padding: '6px 12px',
-              width: 'fit-content',
-            }}
-          >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <a
+              href={appleMusicUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="service-link"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 12,
+                color: 'var(--muted)',
+                textDecoration: 'none',
+                border: '1px solid var(--border)',
+                borderRadius: 6,
+                padding: '6px 12px',
+                width: 'fit-content',
+              }}
             >
-              <circle cx="5" cy="5" r="3.5" />
-              <line x1="8" y1="8" x2="11" y2="11" />
-            </svg>
-            {appleMusicLabel}
-          </a>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <circle cx="5" cy="5" r="3.5" />
+                <line x1="8" y1="8" x2="11" y2="11" />
+              </svg>
+              {appleMusicLabel}
+            </a>
+            <a
+              href={spotifyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="service-link"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 12,
+                color: 'var(--muted)',
+                textDecoration: 'none',
+                border: '1px solid var(--border)',
+                borderRadius: 6,
+                padding: '6px 12px',
+                width: 'fit-content',
+              }}
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <circle cx="6" cy="6" r="5" />
+                <path
+                  d="M3.5 4.5c1.5-.5 3.5-.5 5 .5M3 6.5c1.3-.4 3.2-.4 4.5.5M3.5 8.5c1-.3 2.5-.3 3.5.3"
+                  strokeLinecap="round"
+                />
+              </svg>
+              Search in Spotify
+            </a>
+          </div>
         </div>
       </div>
       <div
+        className="recommendation-card-reason"
         style={{
-          padding: '20px 28px 24px',
           borderTop: '1px solid var(--border)',
           fontSize: 15,
           color: 'var(--muted)',
