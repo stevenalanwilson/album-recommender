@@ -36,7 +36,7 @@ export async function fetchImageBytes(url: string): Promise<ImageResult> {
   const reader = res.body?.getReader();
   if (!reader) throw new Error('No response body');
 
-  const chunks: Uint8Array[] = [];
+  const chunks: Buffer[] = [];
   let totalBytes = 0;
 
   while (true) {
@@ -47,7 +47,7 @@ export async function fetchImageBytes(url: string): Promise<ImageResult> {
       await reader.cancel();
       throw new Error('Image exceeds maximum allowed size');
     }
-    chunks.push(value);
+    chunks.push(Buffer.from(value));
   }
 
   const buffer = Buffer.concat(chunks);

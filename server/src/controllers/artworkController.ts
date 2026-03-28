@@ -16,6 +16,6 @@ export async function handleArtwork(req: Request, res: Response): Promise<void> 
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     logger.error({ error: message, artist, album }, 'artwork fetch failed');
-    res.status(500).json({ error: message });
+    res.status(500).json({ error: 'Failed to fetch artwork.' });
   }
 }

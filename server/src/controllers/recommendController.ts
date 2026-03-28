@@ -69,6 +69,6 @@ export async function handleRecommend(req: Request, res: Response): Promise<void
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     logger.error({ error: message }, 'recommendation request failed');
-    res.status(500).json({ error: message });
+    res.status(500).json({ error: 'Failed to get recommendation. Please try again.' });
   }
 }
