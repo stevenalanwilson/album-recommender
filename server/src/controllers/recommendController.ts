@@ -6,11 +6,11 @@ import {
   SLIDER_MIN,
   SLIDER_MAX,
   ERA_VALUES,
+  MAX_PREFERENCE_ARRAY_LENGTH,
 } from '@shared/types';
 import { logger } from '../logger';
 
 const VALID_ERAS = new Set<string>(ERA_VALUES);
-const MAX_PREFERENCE_ARRAY_LENGTH = 50;
 
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string');
@@ -69,6 +69,6 @@ export async function handleRecommend(req: Request, res: Response): Promise<void
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal server error';
     logger.error({ error: message }, 'recommendation request failed');
-    res.status(500).json({ error: 'Failed to get recommendation. Please try again.' });
+    res.status(502).json({ error: 'Failed to get recommendation. Please try again.' });
   }
 }

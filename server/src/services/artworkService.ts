@@ -1,6 +1,9 @@
 import { ArtworkResponse } from '@shared/types';
 
 const FETCH_TIMEOUT_MS = 8000;
+// Total time budget for the full artwork lookup (MusicBrainz + CAA + iTunes).
+// Ensures the request never hangs indefinitely even if individual timeouts are each hit.
+const REQUEST_BUDGET_MS = 30_000;
 
 interface MusicBrainzReleaseGroup {
   id: string;
@@ -43,14 +46,15 @@ interface ItunesData {
   artworkUrl: string | null;
 }
 
-async function fetchWithTimeout(url: string, options?: RequestInit): Promise<Response> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(timeoutId);
-  }
+async function fetchWithTimeout(
+  url: string,
+  options?: RequestInit,
+  budgetSignal?: AbortSignal,
+): Promise<Response> {
+  const signals: AbortSignal[] = [AbortSignal.timeout(FETCH_TIMEOUT_MS)];
+  if (budgetSignal) signals.push(budgetSignal);
+  const signal = signals.length === 1 ? signals[0] : AbortSignal.any(signals);
+  return fetch(url, { ...options, signal });
 }
 
 function scoreMatch(group: MusicBrainzReleaseGroup, album: string, artist: string): number {
@@ -68,10 +72,16 @@ function scoreMatch(group: MusicBrainzReleaseGroup, album: string, artist: strin
   return score;
 }
 
-async function fetchItunesDataOnce(artist: string, album: string): Promise<ItunesData> {
+async function fetchItunesDataOnce(
+  artist: string,
+  album: string,
+  budgetSignal?: AbortSignal,
+): Promise<ItunesData> {
   const term = encodeURIComponent(`${artist} ${album}`);
   const res = await fetchWithTimeout(
     `https://itunes.apple.com/search?term=${term}&media=music&entity=album&limit=5`,
+    undefined,
+    budgetSignal,
   );
   if (!res.ok) return { appleMusicUrl: null, artworkUrl: null };
 
@@ -105,11 +115,15 @@ async function fetchItunesDataOnce(artist: string, album: string): Promise<Itune
   return { appleMusicUrl: best.collectionViewUrl ?? null, artworkUrl };
 }
 
-async function fetchItunesData(artist: string, album: string): Promise<ItunesData> {
+async function fetchItunesData(
+  artist: string,
+  album: string,
+  budgetSignal?: AbortSignal,
+): Promise<ItunesData> {
   // Retry once on transient failure before giving up
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      return await fetchItunesDataOnce(artist, album);
+      return await fetchItunesDataOnce(artist, album, budgetSignal);
     } catch {
       // fall through to retry
     }
@@ -118,6 +132,8 @@ async function fetchItunesData(artist: string, album: string): Promise<ItunesDat
 }
 
 export async function fetchArtwork(artist: string, album: string): Promise<ArtworkResponse> {
+  const budgetSignal = AbortSignal.timeout(REQUEST_BUDGET_MS);
+
   try {
     // MusicBrainz enforces a 1 req/sec rate limit; this delay keeps us compliant
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -127,9 +143,11 @@ export async function fetchArtwork(artist: string, album: string): Promise<Artwo
     const query = encodeURIComponent(`release:${escapedAlbum} AND artist:${escapedArtist}`);
     const mbUrl = `https://musicbrainz.org/ws/2/release-group?query=${query}&limit=5&fmt=json`;
 
-    const mbRes = await fetchWithTimeout(mbUrl, {
-      headers: { 'User-Agent': 'AlbumRecommender/1.0 (contact@example.com)' },
-    });
+    const mbRes = await fetchWithTimeout(
+      mbUrl,
+      { headers: { 'User-Agent': 'AlbumRecommender/1.0 (contact@example.com)' } },
+      budgetSignal,
+    );
 
     if (!mbRes.ok) throw new Error(`MusicBrainz returned ${mbRes.status}`);
 
@@ -147,7 +165,11 @@ export async function fetchArtwork(artist: string, album: string): Promise<Artwo
     const mbid = best.id;
 
     let artworkUrl: string | null = null;
-    const caRes = await fetchWithTimeout(`https://coverartarchive.org/release-group/${mbid}`);
+    const caRes = await fetchWithTimeout(
+      `https://coverartarchive.org/release-group/${mbid}`,
+      undefined,
+      budgetSignal,
+    );
 
     if (caRes.ok) {
       const caData = (await caRes.json()) as CoverArtResult;
@@ -162,7 +184,7 @@ export async function fetchArtwork(artist: string, album: string): Promise<Artwo
       }
     }
 
-    const itunesData = await fetchItunesData(artist, album);
+    const itunesData = await fetchItunesData(artist, album, budgetSignal);
 
     return {
       artworkUrl: artworkUrl ?? itunesData.artworkUrl,
@@ -171,7 +193,7 @@ export async function fetchArtwork(artist: string, album: string): Promise<Artwo
     };
   } catch {
     // MusicBrainz/CAA failed — still try iTunes for artwork and Apple Music URL
-    const itunesData = await fetchItunesData(artist, album).catch(() => ({
+    const itunesData = await fetchItunesData(artist, album, budgetSignal).catch(() => ({
       appleMusicUrl: null,
       artworkUrl: null,
     }));

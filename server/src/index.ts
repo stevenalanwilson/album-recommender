@@ -19,7 +19,20 @@ const app = express();
 const port = process.env.PORT ?? '3001';
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173' }));
+const allowedOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. same-origin, server-to-server)
+      if (!origin || origin === allowedOrigin) {
+        callback(null, true);
+      } else {
+        logger.warn({ origin }, 'CORS rejected request from disallowed origin');
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+  }),
+);
 app.use(express.json({ limit: '1mb' }));
 app.use(pinoHttp({ logger }));
 app.use('/api', apiRouter);

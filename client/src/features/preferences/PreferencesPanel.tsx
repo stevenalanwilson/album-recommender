@@ -115,6 +115,7 @@ export function PreferencesPanel({
                 onClick={() => handleGenreToggle(genre)}
                 className="pill-button"
                 aria-pressed={isSelected}
+                aria-label={`${genre} genre`}
                 style={{
                   ...pillBaseStyle,
                   background: isSelected ? 'var(--accent)' : 'var(--surface2)',
@@ -142,6 +143,7 @@ export function PreferencesPanel({
                 onClick={() => handleMoodToggle(mood)}
                 className="pill-button"
                 aria-pressed={isSelected}
+                aria-label={`${mood} mood`}
                 style={{
                   ...pillBaseStyle,
                   background: isSelected ? 'var(--accent)' : 'var(--surface2)',

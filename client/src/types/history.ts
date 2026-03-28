@@ -4,4 +4,5 @@ export interface HistoryEntry {
   readonly id: string;
   readonly recommendation: RecommendationResponse;
   readonly artworkResponse: ArtworkResponse;
+  readonly createdAt: string; // ISO 8601
 }

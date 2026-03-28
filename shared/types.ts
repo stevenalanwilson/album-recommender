@@ -1,5 +1,6 @@
 export const SLIDER_MIN = 1;
 export const SLIDER_MAX = 10;
+export const MAX_PREFERENCE_ARRAY_LENGTH = 50;
 
 export const ERA_VALUES = ['pre-80s', '80s-90s', '00s-10s', 'recent', 'any'] as const;
 export type Era = (typeof ERA_VALUES)[number];

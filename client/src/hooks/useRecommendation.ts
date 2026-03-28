@@ -19,13 +19,26 @@ export const DEFAULT_PREFERENCES: RecommendationPreferences = {
   stayFocused: false,
 };
 
+const HISTORY_MAX_AGE_DAYS = 90;
+
 function loadHistoryFromStorage(): HistoryEntry[] {
   try {
     const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
     if (!raw) return [];
-    // Backfill IDs for entries persisted before the id field was introduced.
-    const parsed = JSON.parse(raw) as Array<Omit<HistoryEntry, 'id'> & { id?: string }>;
-    return parsed.map((entry) => ({ ...entry, id: entry.id ?? crypto.randomUUID() }));
+    // Backfill id/createdAt for entries persisted before these fields were introduced.
+    const parsed = JSON.parse(raw) as Array<
+      Omit<HistoryEntry, 'id' | 'createdAt'> & { id?: string; createdAt?: string }
+    >;
+    const cutoff = Date.now() - HISTORY_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
+    return parsed
+      .map((entry) => ({
+        ...entry,
+        id: entry.id ?? crypto.randomUUID(),
+        // Entries without a createdAt pre-date this field; treat as epoch so they age out
+        // on the next load rather than being kept indefinitely.
+        createdAt: entry.createdAt ?? new Date(0).toISOString(),
+      }))
+      .filter((entry) => new Date(entry.createdAt).getTime() > cutoff);
   } catch {
     return [];
   }
@@ -192,6 +205,7 @@ export function useRecommendation(): UseRecommendationReturn {
         id: crypto.randomUUID(),
         recommendation: rec,
         artworkResponse: artwork,
+        createdAt: new Date().toISOString(),
       };
       setHistory((prev) => [newEntry, ...prev].slice(0, 50));
     } catch (err) {

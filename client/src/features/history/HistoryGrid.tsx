@@ -185,6 +185,7 @@ export function HistoryGrid({ history, onClear, onRemove }: HistoryGridProps): R
         <button
           type="button"
           onClick={onClear}
+          aria-label="Clear history"
           style={{
             fontSize: 11,
             color: 'var(--muted)',

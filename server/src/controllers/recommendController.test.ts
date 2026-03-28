@@ -193,7 +193,7 @@ describe('handleRecommend', () => {
 
       await handleRecommend(makeReq(validBody), res);
 
-      expect(status).toHaveBeenCalledWith(500);
+      expect(status).toHaveBeenCalledWith(502);
       expect(json).toHaveBeenCalledWith({
         error: 'Failed to get recommendation. Please try again.',
       });
@@ -205,7 +205,7 @@ describe('handleRecommend', () => {
 
       await handleRecommend(makeReq(validBody), res);
 
-      expect(status).toHaveBeenCalledWith(500);
+      expect(status).toHaveBeenCalledWith(502);
       expect(json).toHaveBeenCalledWith({
         error: 'Failed to get recommendation. Please try again.',
       });

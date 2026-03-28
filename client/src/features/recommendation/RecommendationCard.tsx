@@ -120,7 +120,8 @@ export function RecommendationCard({
     );
   }
 
-  const year = recommendation.year || artworkResponse?.year || '—';
+  const year =
+    recommendation.year.length > 0 ? recommendation.year : (artworkResponse?.year ?? '—');
   const appleMusicUrl =
     artworkResponse?.appleMusicUrl ??
     buildAppleMusicSearchUrl(recommendation.artist, recommendation.album);
