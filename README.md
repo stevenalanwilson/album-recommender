@@ -1,4 +1,6 @@
-# Album Recommender
+# Plinth
+
+_Music to work too._
 
 A fullstack web app that recommends albums based on your taste preferences. Powered by Claude AI, MusicBrainz, and the iTunes Search API.
 
@@ -31,13 +33,13 @@ All preferences are optional — the app works with any combination.
 
 ## Stack
 
-| Layer             | Tech                                              |
-| ----------------- | ------------------------------------------------- |
-| Frontend          | React 18, TypeScript, Vite                        |
-| Backend           | Node.js, TypeScript, Express                      |
-| AI                | Anthropic Claude (Haiku 4.5)                      |
-| Artwork           | MusicBrainz + Cover Art Archive (iTunes fallback) |
-| Apple Music links | iTunes Search API                                 |
+| Layer       | Tech                                              |
+| ----------- | ------------------------------------------------- |
+| Frontend    | React 18, TypeScript, Vite                        |
+| Backend     | Node.js, TypeScript, Express                      |
+| AI          | Anthropic Claude (Haiku 4.5)                      |
+| Artwork     | MusicBrainz + Cover Art Archive (iTunes fallback) |
+| Music links | iTunes Search API (Apple Music), Spotify          |
 
 ---
 
@@ -53,7 +55,7 @@ All preferences are optional — the app works with any combination.
 
 ```bash
 git clone <repo-url>
-cd album-recommender
+cd plinth
 npm install
 cd server && npm install && cd ..
 cd client && npm install && cd ..
