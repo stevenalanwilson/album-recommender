@@ -138,7 +138,7 @@ export function RecommendationCard({
         borderRadius: 'var(--radius)',
         overflow: 'hidden',
         animation: 'fadeUp 0.4s ease both',
-        marginBottom: 48,
+        marginBottom: 12,
       }}
     >
       <div className="recommendation-card-content" style={{ display: 'flex', gap: 24 }}>
@@ -216,13 +216,11 @@ export function RecommendationCard({
           >
             {year}
           </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <ServiceLinks
-              appleMusicUrl={appleMusicUrl}
-              appleMusicLabel={appleMusicLabel}
-              spotifyUrl={spotifyUrl}
-            />
-          </div>
+          <ServiceLinks
+            appleMusicUrl={appleMusicUrl}
+            appleMusicLabel={appleMusicLabel}
+            spotifyUrl={spotifyUrl}
+          />
         </div>
       </div>
       <div

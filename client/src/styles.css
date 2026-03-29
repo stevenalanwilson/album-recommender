@@ -71,7 +71,7 @@ body {
   padding:
     max(env(safe-area-inset-top), 24px)
     max(env(safe-area-inset-right), 16px)
-    max(env(safe-area-inset-bottom), 64px)
+    max(calc(env(safe-area-inset-bottom) + 88px), 88px)
     max(env(safe-area-inset-left), 16px);
 }
 
@@ -94,12 +94,41 @@ body {
     grid-template-rows: auto 1fr;
     column-gap: 40px;
     align-items: start;
+    padding-bottom: max(env(safe-area-inset-bottom), 64px);
     padding-left: max(env(safe-area-inset-left), 40px);
     padding-right: max(env(safe-area-inset-right), 40px);
   }
   .app-header { grid-column: 1 / -1; margin-bottom: 40px; }
   .app-sidebar { grid-column: 1; grid-row: 2; position: sticky; top: 24px; }
   .app-main { grid-column: 2; grid-row: 2; }
+}
+
+/* ─── Sticky CTA bar (mobile only) ───────────────────── */
+
+.cta-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 12px 16px max(env(safe-area-inset-bottom), 16px);
+  background: rgba(14, 14, 15, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+}
+
+/* On desktop the CTA lives inline in the sidebar column — no sticky bar */
+@media (min-width: 769px) {
+  .cta-bar {
+    position: static;
+    padding: 0;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-top: none;
+    margin-top: 8px;
+  }
 }
 
 /* ─── Recommendation card ─────────────────────────────── */
@@ -125,6 +154,22 @@ body {
 @media (min-width: 769px) {
   .recommendation-card-content { padding: 28px; }
   .recommendation-card-reason { padding: 20px 28px 24px; }
+}
+
+/* ─── Service links ───────────────────────────────────── */
+
+.service-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+@media (min-width: 769px) {
+  .service-links {
+    flex-direction: row;
+    width: auto;
+  }
 }
 
 /* ─── History grid ────────────────────────────────────── */

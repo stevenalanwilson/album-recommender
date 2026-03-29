@@ -58,29 +58,30 @@ export default function App(): React.ReactElement {
           error={error}
         />
 
-        <button
-          type="button"
-          className="app-cta-button"
-          onClick={fetchRecommendation}
-          disabled={isLoading}
-          style={{
-            width: '100%',
-            padding: '16px',
-            fontSize: 14,
-            letterSpacing: '0.04em',
-            borderRadius: 'var(--radius)',
-            marginTop: 8,
-            background: 'var(--accent)',
-            border: '1px solid var(--accent)',
-            color: '#0e0e0f',
-            fontFamily: 'var(--mono)',
-            fontWeight: 500,
-            cursor: isLoading ? 'not-allowed' : 'pointer',
-            opacity: isLoading ? 0.35 : 1,
-          }}
-        >
-          {isLoading ? 'Finding your next favourite…' : 'Find me something to listen to'}
-        </button>
+        <div className="cta-bar">
+          <button
+            type="button"
+            className="app-cta-button"
+            onClick={fetchRecommendation}
+            disabled={isLoading}
+            style={{
+              width: '100%',
+              padding: '16px',
+              fontSize: 14,
+              letterSpacing: '0.04em',
+              borderRadius: 'var(--radius)',
+              background: 'var(--accent)',
+              border: '1px solid var(--accent)',
+              color: '#0e0e0f',
+              fontFamily: 'var(--mono)',
+              fontWeight: 500,
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              opacity: isLoading ? 0.35 : 1,
+            }}
+          >
+            {isLoading ? 'Finding your next favourite…' : 'Find me something to listen to'}
+          </button>
+        </div>
 
         {history.length > 1 && (
           <>

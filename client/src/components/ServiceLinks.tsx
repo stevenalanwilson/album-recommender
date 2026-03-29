@@ -13,29 +13,44 @@ export function ServiceLinks({
   spotifyUrl,
   compact = false,
 }: ServiceLinksProps): React.ReactElement {
-  const linkStyle: React.CSSProperties = {
+  const baseLinkStyle: React.CSSProperties = {
     display: 'inline-flex',
     alignItems: 'center',
     gap: 6,
     fontSize: compact ? 10 : 12,
-    color: compact ? 'var(--text)' : 'var(--muted)',
     textDecoration: 'none',
-    border: `1px solid ${compact ? 'var(--border2)' : 'var(--border)'}`,
     borderRadius: 6,
-    padding: compact ? '5px 10px' : '6px 12px',
-    width: compact ? '100%' : 'fit-content',
+    padding: compact ? '5px 10px' : '11px 16px',
+    width: compact ? '100%' : undefined,
     justifyContent: 'center',
     letterSpacing: compact ? '0.04em' : undefined,
   };
 
+  const appleMusicStyle: React.CSSProperties = {
+    ...baseLinkStyle,
+    color: compact ? 'var(--text)' : 'var(--text)',
+    border: `1px solid ${compact ? 'var(--border2)' : 'var(--border2)'}`,
+  };
+
+  const spotifyStyle: React.CSSProperties = {
+    ...baseLinkStyle,
+    color: compact ? 'var(--text)' : 'var(--muted)',
+    border: `1px solid ${compact ? 'var(--border2)' : 'var(--border)'}`,
+  };
+
   return (
-    <>
+    <div
+      className={compact ? undefined : 'service-links'}
+      style={
+        compact ? { display: 'flex', flexDirection: 'column', gap: 6, width: '100%' } : undefined
+      }
+    >
       <a
         href={appleMusicUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="service-link"
-        style={linkStyle}
+        style={appleMusicStyle}
       >
         {!compact && (
           <svg
@@ -57,7 +72,7 @@ export function ServiceLinks({
         target="_blank"
         rel="noopener noreferrer"
         className="service-link"
-        style={linkStyle}
+        style={spotifyStyle}
       >
         {!compact && (
           <svg
@@ -77,6 +92,6 @@ export function ServiceLinks({
         )}
         Search in Spotify
       </a>
-    </>
+    </div>
   );
 }

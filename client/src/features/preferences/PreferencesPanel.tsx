@@ -100,10 +100,20 @@ export function PreferencesPanel({
     onChange({ ...preferences, [field]: !preferences[field] });
   }
 
+  const sectionStyle: React.CSSProperties = {
+    marginBottom: 20,
+  };
+
+  const sectionWithDividerStyle: React.CSSProperties = {
+    ...sectionStyle,
+    borderTop: '1px solid var(--border)',
+    paddingTop: 20,
+  };
+
   return (
     <div style={{ marginBottom: 0 }}>
       {/* Genres */}
-      <div style={{ marginBottom: 12 }}>
+      <div style={sectionStyle}>
         <label style={sectionLabelStyle}>Genres</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {GENRE_OPTIONS.map((genre) => {
@@ -131,7 +141,7 @@ export function PreferencesPanel({
       </div>
 
       {/* Moods */}
-      <div style={{ marginBottom: 12 }}>
+      <div style={sectionWithDividerStyle}>
         <label style={sectionLabelStyle}>Mood</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {MOOD_OPTIONS.map((mood) => {
@@ -159,7 +169,7 @@ export function PreferencesPanel({
       </div>
 
       {/* Sliders */}
-      <div style={{ marginBottom: 12 }}>
+      <div style={sectionWithDividerStyle}>
         <label style={sectionLabelStyle}>Feel</label>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {(
@@ -217,7 +227,7 @@ export function PreferencesPanel({
       </div>
 
       {/* Era */}
-      <div style={{ marginBottom: 12 }}>
+      <div style={sectionWithDividerStyle}>
         <label style={sectionLabelStyle}>Era</label>
         <div
           style={{
@@ -259,9 +269,9 @@ export function PreferencesPanel({
       </div>
 
       {/* Discovery toggles */}
-      <div>
+      <div style={sectionWithDividerStyle}>
         <label style={sectionLabelStyle}>Discovery</label>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {(
             [
               { field: 'includeFamiliarArtists', label: 'Allow well-known artists' },
@@ -275,6 +285,7 @@ export function PreferencesPanel({
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
+                minHeight: 36,
                 fontSize: 12,
                 fontFamily: 'var(--mono)',
                 cursor: 'pointer',
