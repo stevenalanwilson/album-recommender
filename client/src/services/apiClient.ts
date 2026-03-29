@@ -1,4 +1,9 @@
-import { RecommendationRequest, RecommendationResponse, ArtworkResponse } from '@shared/types';
+import {
+  RecommendationRequest,
+  RecommendationResponse,
+  ArtworkResponse,
+  ArtistRelationsResponse,
+} from '@shared/types';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? '';
 const REQUEST_TIMEOUT_MS = 30_000;
@@ -62,6 +67,10 @@ export function fetchRecommendation(
 
 export function fetchArtwork(artist: string, album: string): Promise<ArtworkResponse> {
   return get<ArtworkResponse>('/api/artwork', { artist, album });
+}
+
+export function fetchArtistRelations(artist: string): Promise<ArtistRelationsResponse> {
+  return get<ArtistRelationsResponse>('/api/artist-rels', { artist });
 }
 
 export function getProxiedArtworkUrl(artworkUrl: string): string {

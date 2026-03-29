@@ -85,9 +85,14 @@ export function buildPrompt(request: RecommendationRequest): string {
     }
   }
 
+  let seedStr = '';
+  if (request.seedArtist) {
+    seedStr = `\n\nThe user has discovered ${request.seedArtist} through an artist connection. Recommend a specific album by ${request.seedArtist} that fits their preferences. Do not suggest a different artist — the user specifically wants to explore ${request.seedArtist}'s catalogue.`;
+  }
+
   return `Recommend ONE album for someone with the following preferences: ${summary}.
 
-Pick something genuinely interesting — a deep cut or overlooked gem rather than an obvious classic. It must be a real, released album.${avoidStr}${pivotStr}
+Pick something genuinely interesting — a deep cut or overlooked gem rather than an obvious classic. It must be a real, released album.${avoidStr}${pivotStr}${seedStr}
 
 Respond with ONLY this JSON:
 {

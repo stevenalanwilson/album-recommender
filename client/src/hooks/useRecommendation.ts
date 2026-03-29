@@ -3,10 +3,15 @@ import {
   RecommendationPreferences,
   RecommendationResponse,
   ArtworkResponse,
+  ArtistRelation,
   PivotHint,
 } from '@shared/types';
 import { HistoryEntry } from '../types/history';
-import { fetchRecommendation as apiFetchRecommendation, fetchArtwork } from '../services/apiClient';
+import {
+  fetchRecommendation as apiFetchRecommendation,
+  fetchArtwork,
+  fetchArtistRelations,
+} from '../services/apiClient';
 
 const HISTORY_STORAGE_KEY = 'album-recommender-history';
 // Kept only for the one-time cleanup below — do not read from this key.
@@ -62,10 +67,12 @@ interface UseRecommendationReturn {
   updatePreferences: (prefs: RecommendationPreferences) => void;
   recommendation: RecommendationResponse | null;
   artworkResponse: ArtworkResponse | null;
+  artistRelations: readonly ArtistRelation[];
+  isLoadingRelations: boolean;
   history: HistoryEntry[];
   isLoading: boolean;
   error: string | null;
-  fetchRecommendation: (pivot?: PivotHint) => Promise<void>;
+  fetchRecommendation: (pivot?: PivotHint, seedArtist?: string) => Promise<void>;
   clearHistory: () => void;
   removeFromHistory: (id: string) => void;
 }
@@ -78,6 +85,8 @@ export function useRecommendation(): UseRecommendationReturn {
   const [artworkResponse, setArtworkResponse] = useState<ArtworkResponse | null>(
     () => loadHistoryFromStorage()[0]?.artworkResponse ?? null,
   );
+  const [artistRelations, setArtistRelations] = useState<readonly ArtistRelation[]>([]);
+  const [isLoadingRelations, setIsLoadingRelations] = useState(false);
   const [history, setHistory] = useState<HistoryEntry[]>(loadHistoryFromStorage);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,6 +95,21 @@ export function useRecommendation(): UseRecommendationReturn {
   // in its dependency array. A ref is always up to date; a stale closure is not.
   const historyRef = useRef(history);
   historyRef.current = history;
+
+  // Restore artist relations for the current recommendation on mount.
+  // fetchRecommendation populates this after a new fetch, but on page refresh
+  // the recommendation is rehydrated from localStorage while relations stay empty.
+  useEffect(() => {
+    const initial = loadHistoryFromStorage()[0];
+    if (!initial) return;
+    setIsLoadingRelations(true);
+    void fetchArtistRelations(initial.recommendation.artist)
+      .then((r) => setArtistRelations(r.relations))
+      .catch(() => {
+        /* non-critical */
+      })
+      .finally(() => setIsLoadingRelations(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // One-time migration: clear stale library data left over from the upload-based flow.
   useEffect(() => {
@@ -172,6 +196,8 @@ export function useRecommendation(): UseRecommendationReturn {
     setHistory([]);
     setRecommendation(null);
     setArtworkResponse(null);
+    setArtistRelations([]);
+    setIsLoadingRelations(false);
   }, []);
 
   const removeFromHistory = useCallback((id: string): void => {
@@ -180,6 +206,8 @@ export function useRecommendation(): UseRecommendationReturn {
       if (prev[0]?.id === id) {
         setRecommendation(null);
         setArtworkResponse(null);
+        setArtistRelations([]);
+        setIsLoadingRelations(false);
       }
       return next;
     });
@@ -193,7 +221,7 @@ export function useRecommendation(): UseRecommendationReturn {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchRecommendation = useCallback(
-    async (pivot?: PivotHint): Promise<void> => {
+    async (pivot?: PivotHint, seedArtist?: string): Promise<void> => {
       // Cancel any in-flight request before starting a new one.
       abortControllerRef.current?.abort();
       const controller = new AbortController();
@@ -212,6 +240,7 @@ export function useRecommendation(): UseRecommendationReturn {
             preferences,
             alreadySuggested,
             pivot,
+            seedArtist,
           },
           controller.signal,
         );
@@ -222,6 +251,20 @@ export function useRecommendation(): UseRecommendationReturn {
 
         setRecommendation(rec);
         setArtworkResponse(artwork);
+        setArtistRelations([]);
+        setIsLoadingRelations(true);
+
+        // Fetch connected artists in the background — non-critical enrichment.
+        void fetchArtistRelations(rec.artist)
+          .then((r) => {
+            if (!controller.signal.aborted) setArtistRelations(r.relations);
+          })
+          .catch(() => {
+            /* non-critical */
+          })
+          .finally(() => {
+            if (!controller.signal.aborted) setIsLoadingRelations(false);
+          });
 
         const newEntry: HistoryEntry = {
           id: crypto.randomUUID(),
@@ -247,6 +290,8 @@ export function useRecommendation(): UseRecommendationReturn {
     updatePreferences,
     recommendation,
     artworkResponse,
+    artistRelations,
+    isLoadingRelations,
     history,
     isLoading,
     error,

@@ -25,10 +25,20 @@ export interface PivotHint {
   readonly album: string;
 }
 
+export interface ArtistRelation {
+  readonly name: string;
+  readonly type: string;
+}
+
+export interface ArtistRelationsResponse {
+  readonly relations: readonly ArtistRelation[];
+}
+
 export interface RecommendationRequest {
   readonly preferences: RecommendationPreferences;
   readonly alreadySuggested: readonly string[];
   readonly pivot?: PivotHint;
+  readonly seedArtist?: string;
 }
 
 export interface RecommendationResponse {

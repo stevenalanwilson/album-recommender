@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RecommendationResponse, ArtworkResponse } from '@shared/types';
+import { RecommendationResponse, ArtworkResponse, ArtistRelation } from '@shared/types';
 import {
   getProxiedArtworkUrl,
   buildAppleMusicSearchUrl,
@@ -11,15 +11,21 @@ import { ServiceLinks } from '../../components/ServiceLinks';
 interface RecommendationCardProps {
   recommendation: RecommendationResponse | null;
   artworkResponse: ArtworkResponse | null;
+  artistRelations: readonly ArtistRelation[];
+  isLoadingRelations: boolean;
   isLoading: boolean;
   error: string | null;
+  onSeedArtist: (name: string) => void;
 }
 
 export function RecommendationCard({
   recommendation,
   artworkResponse,
+  artistRelations,
+  isLoadingRelations,
   isLoading,
   error,
+  onSeedArtist,
 }: RecommendationCardProps): React.ReactElement {
   const [imgErrored, setImgErrored] = useState(false);
 
@@ -233,6 +239,65 @@ export function RecommendationCard({
         }}
       >
         {recommendation.reason}
+      </div>
+      <div style={{ borderTop: '1px solid var(--border)', padding: '12px 16px' }}>
+        <div
+          style={{
+            fontSize: 10,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'var(--muted)',
+            marginBottom: 8,
+          }}
+        >
+          Connected artists
+        </div>
+        {isLoadingRelations ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div
+              style={{
+                width: 12,
+                height: 12,
+                border: '1.5px solid var(--border2)',
+                borderTopColor: 'var(--accent)',
+                borderRadius: '50%',
+                animation: 'spin 0.75s linear infinite',
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 11, color: 'var(--muted)' }}>Finding connections…</span>
+          </div>
+        ) : artistRelations.length > 0 ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {artistRelations.map((rel) => (
+              <button
+                key={rel.name}
+                type="button"
+                className="pill-button"
+                onClick={() => onSeedArtist(rel.name)}
+                style={{
+                  padding: '5px 10px',
+                  fontSize: 11,
+                  fontFamily: 'var(--mono)',
+                  background: 'var(--surface2)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 20,
+                  color: 'var(--text)',
+                  cursor: 'pointer',
+                }}
+              >
+                {rel.name}
+                <span style={{ color: 'var(--muted)', fontSize: 9, marginLeft: 4 }}>
+                  {rel.type}
+                </span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <span style={{ fontSize: 11, color: 'var(--muted)', fontStyle: 'italic' }}>
+            No connected artists found
+          </span>
+        )}
       </div>
     </div>
   );

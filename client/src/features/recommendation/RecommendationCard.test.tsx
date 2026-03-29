@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { RecommendationCard } from './RecommendationCard';
 
@@ -22,8 +22,11 @@ describe('RecommendationCard', () => {
       <RecommendationCard
         recommendation={null}
         artworkResponse={null}
+        artistRelations={[]}
+        isLoadingRelations={false}
         isLoading={false}
         error={null}
+        onSeedArtist={vi.fn()}
       />,
     );
     expect(screen.getByText(/next favourite album is waiting/)).toBeInTheDocument();
@@ -34,8 +37,11 @@ describe('RecommendationCard', () => {
       <RecommendationCard
         recommendation={null}
         artworkResponse={null}
+        artistRelations={[]}
+        isLoadingRelations={false}
         isLoading={true}
         error={null}
+        onSeedArtist={vi.fn()}
       />,
     );
     expect(screen.getByText(/Finding your next favourite/)).toBeInTheDocument();
@@ -46,8 +52,11 @@ describe('RecommendationCard', () => {
       <RecommendationCard
         recommendation={null}
         artworkResponse={null}
+        artistRelations={[]}
+        isLoadingRelations={false}
         isLoading={false}
         error="API error"
+        onSeedArtist={vi.fn()}
       />,
     );
     expect(screen.getByText('API error')).toBeInTheDocument();
@@ -58,8 +67,11 @@ describe('RecommendationCard', () => {
       <RecommendationCard
         recommendation={mockRec}
         artworkResponse={mockArtwork}
+        artistRelations={[]}
+        isLoadingRelations={false}
         isLoading={false}
         error={null}
+        onSeedArtist={vi.fn()}
       />,
     );
     expect(screen.getByText('Mezzanine')).toBeInTheDocument();
@@ -73,8 +85,11 @@ describe('RecommendationCard', () => {
       <RecommendationCard
         recommendation={mockRec}
         artworkResponse={mockArtwork}
+        artistRelations={[]}
+        isLoadingRelations={false}
         isLoading={false}
         error={null}
+        onSeedArtist={vi.fn()}
       />,
     );
     const link = screen.getByText('Search in Apple Music').closest('a');
@@ -86,8 +101,11 @@ describe('RecommendationCard', () => {
       <RecommendationCard
         recommendation={mockRec}
         artworkResponse={mockArtworkWithLink}
+        artistRelations={[]}
+        isLoadingRelations={false}
         isLoading={false}
         error={null}
+        onSeedArtist={vi.fn()}
       />,
     );
     const link = screen.getByText('Open in Apple Music').closest('a');

@@ -242,3 +242,31 @@ describe('buildPrompt pivot hint', () => {
     expect(prompt).not.toContain('meaningfully different');
   });
 });
+
+describe('buildPrompt seedArtist', () => {
+  const baseRequest: RecommendationRequest = {
+    preferences: {
+      genres: [],
+      moods: [],
+      tempo: 5,
+      energy: 5,
+      density: 5,
+      era: 'any',
+      includeFamiliarArtists: true,
+      prioritiseObscure: false,
+      stayFocused: false,
+    },
+    alreadySuggested: [],
+  };
+
+  it('includes artist name and catalogue language when seedArtist is set', () => {
+    const prompt = buildPrompt({ ...baseRequest, seedArtist: 'Four Tet' });
+    expect(prompt).toContain('Four Tet');
+    expect(prompt).toContain('catalogue');
+  });
+
+  it('does not include seed language when seedArtist is absent', () => {
+    const prompt = buildPrompt(baseRequest);
+    expect(prompt).not.toContain('catalogue');
+  });
+});

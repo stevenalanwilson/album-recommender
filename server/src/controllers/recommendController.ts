@@ -77,11 +77,18 @@ export async function handleRecommend(req: Request, res: Response): Promise<void
     return;
   }
 
+  const { seedArtist } = body;
+  if (seedArtist !== undefined && (typeof seedArtist !== 'string' || seedArtist.trim() === '')) {
+    res.status(400).json({ error: 'seedArtist must be a non-empty string' });
+    return;
+  }
+
   try {
     const recommendation = await getRecommendation({
       preferences: body.preferences,
       alreadySuggested: body.alreadySuggested,
       pivot: body.pivot,
+      seedArtist,
     });
     res.json(recommendation);
   } catch (error) {

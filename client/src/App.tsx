@@ -11,6 +11,8 @@ export default function App(): React.ReactElement {
     updatePreferences,
     recommendation,
     artworkResponse,
+    artistRelations,
+    isLoadingRelations,
     history,
     isLoading,
     error,
@@ -55,8 +57,11 @@ export default function App(): React.ReactElement {
         <RecommendationCard
           recommendation={recommendation}
           artworkResponse={artworkResponse}
+          artistRelations={artistRelations}
+          isLoadingRelations={isLoadingRelations}
           isLoading={isLoading}
           error={error}
+          onSeedArtist={(name) => void fetchRecommendation(undefined, name)}
         />
 
         {recommendation && !isLoading && (
