@@ -99,7 +99,9 @@ Respond with ONLY this JSON:
   "artist": "Artist Name",
   "album": "Album Title",
   "year": "YYYY",
-  "reason": "Two sentences on why this fits their preferences."
+  "reason": "Two sentences on why this fits their preferences.",
+  "genres": ["Primary Genre", "Secondary Genre"],
+  "country": "Country of Origin"
 }`;
 }
 
@@ -146,11 +148,18 @@ function parseRecommendationJson(raw: string): RecommendationResponse {
     throw new Error('Invalid recommendation field types');
   }
 
+  const genres = Array.isArray(rec.genres)
+    ? (rec.genres as unknown[]).filter((g): g is string => typeof g === 'string')
+    : undefined;
+  const country = typeof rec.country === 'string' ? rec.country : undefined;
+
   return {
     artist: rec.artist,
     album: rec.album,
     year: rec.year,
     reason: rec.reason,
+    ...(genres !== undefined && genres.length > 0 ? { genres } : {}),
+    ...(country !== undefined ? { country } : {}),
   };
 }
 

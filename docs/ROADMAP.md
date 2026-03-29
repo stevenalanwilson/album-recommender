@@ -15,7 +15,7 @@
 
 ## 📊 Library Insights
 
-- [ ] **Library stats dashboard** — Breakdown of collection by decade, genre, and country of origin; surface interesting gaps
+- [x] **Library stats dashboard** — Breakdown of collection by decade, genre, and country of origin; surface interesting gaps
 - [ ] **"What's missing"** — Based on library artists, flag acclaimed albums in those discographies not yet owned
 - [ ] **Play count weighting** — If Apple Music play data is accessible, weight recommendations toward artists actually listened to, not just owned
 
@@ -50,6 +50,7 @@
 
 - **"More like this" refinement** — Pivot buttons after each recommendation steer the next suggestion via "more like this" or "something different", feeding the signal into the Claude prompt
 - **Similar artist discovery** — Connected artists surface on the recommendation card via MusicBrainz relationships and recording co-credits; clicking a chip seeds Claude to recommend from that artist's catalogue
+- **Library stats dashboard** — Decade, genre, and country breakdowns rendered as CSS bar charts below history; gap observations surface underrepresented eras, dominant countries, and genre bias
 
 ---
 

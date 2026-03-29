@@ -48,6 +48,25 @@ body {
 
 /* ─── Button hover effects ───────────────────────────── */
 
+.nav-tab {
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color 0.15s ease;
+}
+.nav-tab[data-active="true"] {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+.nav-tab:hover { color: var(--text); }
+
 .app-cta-button { transition: filter 0.15s ease; }
 .app-cta-button:hover:not(:disabled) { filter: brightness(0.75); }
 
@@ -105,6 +124,8 @@ body {
   .app-header { grid-column: 1 / -1; margin-bottom: 40px; }
   .app-sidebar { grid-column: 1; grid-row: 2; position: sticky; top: 24px; }
   .app-main { grid-column: 2; grid-row: 2; }
+  .app-full { grid-column: 1 / -1; }
+  .stats-summary-grid { grid-template-columns: repeat(4, 1fr) !important; }
 }
 
 /* ─── Sticky CTA bar (mobile only) ───────────────────── */

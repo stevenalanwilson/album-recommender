@@ -48,6 +48,8 @@ const validJsonResponse = JSON.stringify({
   album: 'Mezzanine',
   year: '1998',
   reason: 'A perfect fit for your taste.',
+  genres: ['Trip-hop', 'Electronic'],
+  country: 'United Kingdom',
 });
 
 describe('getRecommendation', () => {
@@ -58,11 +60,13 @@ describe('getRecommendation', () => {
 
     const result = await getRecommendation(validRequest);
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       artist: 'Massive Attack',
       album: 'Mezzanine',
       year: '1998',
       reason: 'A perfect fit for your taste.',
+      genres: ['Trip-hop', 'Electronic'],
+      country: 'United Kingdom',
     });
   });
 
@@ -240,6 +244,57 @@ describe('buildPrompt pivot hint', () => {
     const prompt = buildPrompt(baseRequest);
     expect(prompt).not.toContain('similar vein');
     expect(prompt).not.toContain('meaningfully different');
+  });
+});
+
+describe('genres and country parsing', () => {
+  it('includes genres and country when present in response', async () => {
+    mockCreate.mockResolvedValue({
+      content: [{ type: 'text', text: validJsonResponse }],
+    });
+
+    const result = await getRecommendation(validRequest);
+
+    expect(result.genres).toEqual(['Trip-hop', 'Electronic']);
+    expect(result.country).toBe('United Kingdom');
+  });
+
+  it('omits genres when not present in response', async () => {
+    mockCreate.mockResolvedValue({
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({ artist: 'X', album: 'Y', year: '2000', reason: 'Good.' }),
+        },
+      ],
+    });
+
+    const result = await getRecommendation(validRequest);
+
+    expect(result.genres).toBeUndefined();
+    expect(result.country).toBeUndefined();
+  });
+
+  it('filters non-string entries from genres array', async () => {
+    mockCreate.mockResolvedValue({
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({
+            artist: 'X',
+            album: 'Y',
+            year: '2000',
+            reason: 'Good.',
+            genres: ['Rock', 42, null, 'Jazz'],
+            country: 'USA',
+          }),
+        },
+      ],
+    });
+
+    const result = await getRecommendation(validRequest);
+
+    expect(result.genres).toEqual(['Rock', 'Jazz']);
   });
 });
 

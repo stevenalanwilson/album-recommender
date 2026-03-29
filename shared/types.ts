@@ -46,6 +46,8 @@ export interface RecommendationResponse {
   readonly album: string;
   readonly year: string;
   readonly reason: string;
+  readonly genres?: readonly string[];
+  readonly country?: string;
 }
 
 export interface ArtworkResponse {
