@@ -25,6 +25,7 @@
 
 - [ ] **Persistent want list** — Save recommended albums to a wishlist stored in localStorage, with links to buy or stream
 - [ ] **Album detail expansion** — Clicking an album pulls a richer view with tracklist, release info, and related albums via MusicBrainz
+- [x] **Reload from history** — Click any previously suggested album to restore it as the current recommendation
 - [ ] **Keyboard navigation** — Quick "next recommendation" via spacebar or arrow keys
 - [ ] **Dark/light mode toggle** — Theme switching for different environments
 
@@ -50,7 +51,8 @@
 
 - **"More like this" refinement** — Pivot buttons after each recommendation steer the next suggestion via "more like this" or "something different", feeding the signal into the Claude prompt
 - **Similar artist discovery** — Connected artists surface on the recommendation card via MusicBrainz relationships and recording co-credits; clicking a chip seeds Claude to recommend from that artist's catalogue
-- **Library stats dashboard** — Decade, genre, and country breakdowns rendered as CSS bar charts below history; gap observations surface underrepresented eras, dominant countries, and genre bias
+- **Library stats dashboard** — Dedicated Insights page with summary cards, monthly activity chart, decade/genre/country breakdowns, top artists, and gap observations
+- **Reload from history** — History grid cards are clickable; selecting one restores it as the current recommendation with a fresh connected-artists fetch
 
 ---
 
