@@ -33,5 +33,4 @@ export interface ArtworkResponse {
   readonly artworkUrl: string | null;
   readonly year: string | null;
   readonly appleMusicUrl: string | null;
-  readonly spotifyUrl: string | null;
 }

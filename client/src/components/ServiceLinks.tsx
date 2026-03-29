@@ -3,16 +3,14 @@ import React from 'react';
 interface ServiceLinksProps {
   appleMusicDirectUrl: string | null;
   appleMusicSearchUrl: string;
-  spotifyDirectUrl: string | null;
-  spotifySearchUrl: string;
+  spotifyUrl: string;
   compact?: boolean;
 }
 
 export function ServiceLinks({
   appleMusicDirectUrl,
   appleMusicSearchUrl,
-  spotifyDirectUrl,
-  spotifySearchUrl,
+  spotifyUrl,
   compact = false,
 }: ServiceLinksProps): React.ReactElement {
   const baseLinkStyle: React.CSSProperties = {
@@ -32,10 +30,6 @@ export function ServiceLinks({
   const appleMusicLabel = appleMusicDirectUrl ? 'Open in Apple Music' : 'Search in Apple Music';
   const appleMusicOpacity = appleMusicDirectUrl ? 1 : 0.55;
 
-  const spotifyUrl = spotifyDirectUrl ?? spotifySearchUrl;
-  const spotifyLabel = spotifyDirectUrl ? 'Open in Spotify' : 'Search in Spotify';
-  const spotifyOpacity = spotifyDirectUrl ? 1 : 0.55;
-
   const appleMusicStyle: React.CSSProperties = {
     ...baseLinkStyle,
     color: 'var(--text)',
@@ -47,7 +41,6 @@ export function ServiceLinks({
     ...baseLinkStyle,
     color: compact ? 'var(--text)' : 'var(--muted)',
     border: `1px solid ${compact ? 'var(--border2)' : 'var(--border)'}`,
-    opacity: spotifyOpacity,
   };
 
   return (
@@ -102,7 +95,7 @@ export function ServiceLinks({
             />
           </svg>
         )}
-        {spotifyLabel}
+        Search in Spotify
       </a>
     </div>
   );

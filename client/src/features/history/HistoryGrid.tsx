@@ -94,8 +94,7 @@ function HistoryItem({ entry, onRemove }: HistoryItemProps): React.ReactElement 
               entry.recommendation.artist,
               entry.recommendation.album,
             )}
-            spotifyDirectUrl={entry.artworkResponse.spotifyUrl}
-            spotifySearchUrl={buildSpotifySearchUrl(
+            spotifyUrl={buildSpotifySearchUrl(
               entry.recommendation.artist,
               entry.recommendation.album,
             )}

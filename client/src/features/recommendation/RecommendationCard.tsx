@@ -215,8 +215,7 @@ export function RecommendationCard({
               recommendation.artist,
               recommendation.album,
             )}
-            spotifyDirectUrl={artworkResponse?.spotifyUrl ?? null}
-            spotifySearchUrl={buildSpotifySearchUrl(recommendation.artist, recommendation.album)}
+            spotifyUrl={buildSpotifySearchUrl(recommendation.artist, recommendation.album)}
           />
         </div>
       </div>

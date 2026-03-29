@@ -2,7 +2,7 @@
 
 _Music to work too._
 
-A fullstack web app that recommends albums based on your taste preferences. Powered by Claude AI, MusicBrainz, the iTunes Search API, and the Spotify Web API.
+A fullstack web app that recommends albums based on your taste preferences. Powered by Claude AI, MusicBrainz, and the iTunes Search API.
 
 ## How it works
 
@@ -39,7 +39,7 @@ All preferences are optional — the app works with any combination.
 | Backend     | Node.js, TypeScript, Express                      |
 | AI          | Anthropic Claude (Haiku 4.5)                      |
 | Artwork     | MusicBrainz + Cover Art Archive (iTunes fallback) |
-| Music links | iTunes Search API (Apple Music), Spotify          |
+| Music links | iTunes Search API (Apple Music), Spotify search   |
 
 ---
 
@@ -93,16 +93,14 @@ Then open [http://localhost:5173](http://localhost:5173).
 
 ## Environment variables
 
-| Variable                | Required | Default                 | Description                                         |
-| ----------------------- | -------- | ----------------------- | --------------------------------------------------- |
-| `ANTHROPIC_API_KEY`     | ✅       | —                       | Anthropic API key — powers album recommendations    |
-| `SPOTIFY_CLIENT_ID`     |          | —                       | Spotify app client ID — enables direct album links  |
-| `SPOTIFY_CLIENT_SECRET` |          | —                       | Spotify app client secret                           |
-| `PORT`                  |          | `3001`                  | Server port                                         |
-| `CORS_ORIGIN`           |          | `http://localhost:5173` | Allowed client origin                               |
-| `VITE_API_URL`          |          | `''` (same origin)      | Client → server base URL (local dev without Docker) |
+| Variable            | Required | Default                 | Description                                         |
+| ------------------- | -------- | ----------------------- | --------------------------------------------------- |
+| `ANTHROPIC_API_KEY` | ✅       | —                       | Anthropic API key — powers album recommendations    |
+| `PORT`              |          | `3001`                  | Server port                                         |
+| `CORS_ORIGIN`       |          | `http://localhost:5173` | Allowed client origin                               |
+| `VITE_API_URL`      |          | `''` (same origin)      | Client → server base URL (local dev without Docker) |
 
-### Getting your API keys
+### Getting your API key
 
 **Anthropic API key** (required)
 
@@ -110,16 +108,6 @@ Then open [http://localhost:5173](http://localhost:5173).
 2. Sign in or create an account
 3. Navigate to **API Keys** and click **Create Key**
 4. Copy the key into `ANTHROPIC_API_KEY`
-
-**Spotify credentials** (optional — enables "Open in Spotify" direct links)
-
-Without these the app still works, but Spotify links fall back to a search URL instead of linking directly to the album.
-
-1. Go to [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)
-2. Log in with your Spotify account
-3. Click **Create app**, give it a name and description, set the redirect URI to `http://localhost:3001` (only needed to satisfy the form — this app uses client credentials and never redirects)
-4. Open the app and click **Settings**
-5. Copy **Client ID** into `SPOTIFY_CLIENT_ID` and **Client secret** into `SPOTIFY_CLIENT_SECRET`
 
 ---
 
