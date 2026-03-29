@@ -64,7 +64,7 @@ function buildPreferencesSummary(preferences: RecommendationPreferences): string
   return parts.join('; ');
 }
 
-function buildPrompt(request: RecommendationRequest): string {
+export function buildPrompt(request: RecommendationRequest): string {
   const summary = buildPreferencesSummary(request.preferences);
 
   const avoidStr =
@@ -75,9 +75,19 @@ function buildPrompt(request: RecommendationRequest): string {
           .join(', ')}`
       : '';
 
+  let pivotStr = '';
+  if (request.pivot) {
+    const ref = `"${request.pivot.artist} – ${request.pivot.album}"`;
+    if (request.pivot.type === 'more-like-this') {
+      pivotStr = `\n\nThe user enjoyed ${ref} and wants their next recommendation to be in a similar vein — comparable energy, style, mood, and era. Suggest something from a related scene or sound, but not the same artist.`;
+    } else {
+      pivotStr = `\n\nThe user was not satisfied with ${ref}. Recommend something meaningfully different — deliberately avoid similar genres, sounds, era, and mood.`;
+    }
+  }
+
   return `Recommend ONE album for someone with the following preferences: ${summary}.
 
-Pick something genuinely interesting — a deep cut or overlooked gem rather than an obvious classic. It must be a real, released album.${avoidStr}
+Pick something genuinely interesting — a deep cut or overlooked gem rather than an obvious classic. It must be a real, released album.${avoidStr}${pivotStr}
 
 Respond with ONLY this JSON:
 {

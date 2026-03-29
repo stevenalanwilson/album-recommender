@@ -3,6 +3,7 @@ import { getRecommendation } from '../services/recommendationService';
 import {
   RecommendationRequest,
   RecommendationPreferences,
+  PivotHint,
   SLIDER_MIN,
   SLIDER_MAX,
   ERA_VALUES,
@@ -22,6 +23,17 @@ function isSliderValue(value: unknown): value is number {
     Number.isInteger(value) &&
     value >= SLIDER_MIN &&
     value <= SLIDER_MAX
+  );
+}
+
+function isValidPivot(value: unknown): value is PivotHint | undefined {
+  if (value === undefined) return true;
+  if (typeof value !== 'object' || value === null) return false;
+  const p = value as Record<string, unknown>;
+  return (
+    (p.type === 'more-like-this' || p.type === 'something-different') &&
+    typeof p.artist === 'string' &&
+    typeof p.album === 'string'
   );
 }
 
@@ -60,10 +72,16 @@ export async function handleRecommend(req: Request, res: Response): Promise<void
     return;
   }
 
+  if (!isValidPivot(body.pivot)) {
+    res.status(400).json({ error: 'pivot must be a valid PivotHint object' });
+    return;
+  }
+
   try {
     const recommendation = await getRecommendation({
       preferences: body.preferences,
       alreadySuggested: body.alreadySuggested,
+      pivot: body.pivot,
     });
     res.json(recommendation);
   } catch (error) {

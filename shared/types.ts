@@ -17,9 +17,18 @@ export interface RecommendationPreferences {
   readonly stayFocused: boolean;
 }
 
+export type PivotType = 'more-like-this' | 'something-different';
+
+export interface PivotHint {
+  readonly type: PivotType;
+  readonly artist: string;
+  readonly album: string;
+}
+
 export interface RecommendationRequest {
   readonly preferences: RecommendationPreferences;
   readonly alreadySuggested: readonly string[];
+  readonly pivot?: PivotHint;
 }
 
 export interface RecommendationResponse {

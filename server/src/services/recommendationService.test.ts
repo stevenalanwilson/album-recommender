@@ -12,7 +12,7 @@ vi.mock('@anthropic-ai/sdk', () => {
 });
 
 import Anthropic from '@anthropic-ai/sdk';
-import { getRecommendation } from './recommendationService';
+import { getRecommendation, buildPrompt } from './recommendationService';
 import { RecommendationRequest, RecommendationPreferences } from '@shared/types';
 
 const mockCreate = vi.fn();
@@ -199,5 +199,46 @@ describe('getRecommendation', () => {
     const callArgs = mockCreate.mock.calls[0][0];
     const prompt = callArgs.messages[0].content as string;
     expect(prompt).not.toContain('do NOT recommend');
+  });
+});
+
+describe('buildPrompt pivot hint', () => {
+  const baseRequest: RecommendationRequest = {
+    preferences: {
+      genres: [],
+      moods: [],
+      tempo: 5,
+      energy: 5,
+      density: 5,
+      era: 'any',
+      includeFamiliarArtists: true,
+      prioritiseObscure: false,
+      stayFocused: false,
+    },
+    alreadySuggested: [],
+  };
+
+  it('includes "similar vein" language for more-like-this pivot', () => {
+    const prompt = buildPrompt({
+      ...baseRequest,
+      pivot: { type: 'more-like-this', artist: 'Burial', album: 'Untrue' },
+    });
+    expect(prompt).toContain('"Burial – Untrue"');
+    expect(prompt).toContain('similar vein');
+  });
+
+  it('includes "meaningfully different" language for something-different pivot', () => {
+    const prompt = buildPrompt({
+      ...baseRequest,
+      pivot: { type: 'something-different', artist: 'Burial', album: 'Untrue' },
+    });
+    expect(prompt).toContain('"Burial – Untrue"');
+    expect(prompt).toContain('meaningfully different');
+  });
+
+  it('includes no pivot language when pivot is absent', () => {
+    const prompt = buildPrompt(baseRequest);
+    expect(prompt).not.toContain('similar vein');
+    expect(prompt).not.toContain('meaningfully different');
   });
 });

@@ -1,4 +1,5 @@
 import React from 'react';
+import { PivotHint } from '@shared/types';
 import { useRecommendation } from './hooks/useRecommendation';
 import { PreferencesPanel } from './features/preferences/PreferencesPanel';
 import { RecommendationCard } from './features/recommendation/RecommendationCard';
@@ -58,11 +59,50 @@ export default function App(): React.ReactElement {
           error={error}
         />
 
+        {recommendation && !isLoading && (
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            {(
+              [
+                { type: 'more-like-this', label: 'More like this' },
+                { type: 'something-different', label: 'Something different' },
+              ] as const
+            ).map(({ type, label }) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => {
+                  const pivot: PivotHint = {
+                    type,
+                    artist: recommendation.artist,
+                    album: recommendation.album,
+                  };
+                  void fetchRecommendation(pivot);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '10px 12px',
+                  fontSize: 11,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  fontFamily: 'var(--mono)',
+                  borderRadius: 'var(--radius)',
+                  background: 'transparent',
+                  border: '1px solid var(--border)',
+                  color: 'var(--muted)',
+                  cursor: 'pointer',
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="cta-bar">
           <button
             type="button"
             className="app-cta-button"
-            onClick={fetchRecommendation}
+            onClick={() => void fetchRecommendation()}
             disabled={isLoading}
             style={{
               width: '100%',

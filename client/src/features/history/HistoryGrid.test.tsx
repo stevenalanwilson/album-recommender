@@ -95,8 +95,8 @@ describe('HistoryGrid', () => {
   it('renders Apple Music, Spotify, and Discogs links in the overlay for every item', () => {
     render(<HistoryGrid history={entries} onClear={vi.fn()} onRemove={vi.fn()} />);
     expect(screen.getAllByText('Apple Music')).toHaveLength(entries.length);
-    expect(screen.getAllByText('Search in Spotify')).toHaveLength(entries.length);
-    expect(screen.getAllByText('Search in Discogs')).toHaveLength(entries.length);
+    expect(screen.getAllByText('Spotify')).toHaveLength(entries.length);
+    expect(screen.getAllByText('Discogs')).toHaveLength(entries.length);
   });
 
   it('calls onClear when the clear button is clicked', async () => {

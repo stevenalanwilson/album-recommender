@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { RecommendationPreferences, RecommendationResponse, ArtworkResponse } from '@shared/types';
+import {
+  RecommendationPreferences,
+  RecommendationResponse,
+  ArtworkResponse,
+  PivotHint,
+} from '@shared/types';
 import { HistoryEntry } from '../types/history';
 import { fetchRecommendation as apiFetchRecommendation, fetchArtwork } from '../services/apiClient';
 
@@ -60,7 +65,7 @@ interface UseRecommendationReturn {
   history: HistoryEntry[];
   isLoading: boolean;
   error: string | null;
-  fetchRecommendation: () => Promise<void>;
+  fetchRecommendation: (pivot?: PivotHint) => Promise<void>;
   clearHistory: () => void;
   removeFromHistory: (id: string) => void;
 }
@@ -187,51 +192,55 @@ export function useRecommendation(): UseRecommendationReturn {
   // Tracks the in-flight request so a second click cancels the first.
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchRecommendation = useCallback(async (): Promise<void> => {
-    // Cancel any in-flight request before starting a new one.
-    abortControllerRef.current?.abort();
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
+  const fetchRecommendation = useCallback(
+    async (pivot?: PivotHint): Promise<void> => {
+      // Cancel any in-flight request before starting a new one.
+      abortControllerRef.current?.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    const alreadySuggested = historyRef.current.map(
-      (e) => `${e.recommendation.artist} – ${e.recommendation.album}`,
-    );
-
-    try {
-      const rec = await apiFetchRecommendation(
-        {
-          preferences,
-          alreadySuggested,
-        },
-        controller.signal,
+      const alreadySuggested = historyRef.current.map(
+        (e) => `${e.recommendation.artist} – ${e.recommendation.album}`,
       );
 
-      const artwork = await fetchArtwork(rec.artist, rec.album);
+      try {
+        const rec = await apiFetchRecommendation(
+          {
+            preferences,
+            alreadySuggested,
+            pivot,
+          },
+          controller.signal,
+        );
 
-      if (controller.signal.aborted) return;
+        const artwork = await fetchArtwork(rec.artist, rec.album);
 
-      setRecommendation(rec);
-      setArtworkResponse(artwork);
+        if (controller.signal.aborted) return;
 
-      const newEntry: HistoryEntry = {
-        id: crypto.randomUUID(),
-        recommendation: rec,
-        artworkResponse: artwork,
-        createdAt: new Date().toISOString(),
-      };
-      setHistory((prev) => [newEntry, ...prev].slice(0, 50));
-    } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') return;
-      setError(err instanceof Error ? err.message : 'Something went wrong.');
-    } finally {
-      if (!controller.signal.aborted) {
-        setIsLoading(false);
+        setRecommendation(rec);
+        setArtworkResponse(artwork);
+
+        const newEntry: HistoryEntry = {
+          id: crypto.randomUUID(),
+          recommendation: rec,
+          artworkResponse: artwork,
+          createdAt: new Date().toISOString(),
+        };
+        setHistory((prev) => [newEntry, ...prev].slice(0, 50));
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return;
+        setError(err instanceof Error ? err.message : 'Something went wrong.');
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
       }
-    }
-  }, [preferences]);
+    },
+    [preferences],
+  );
 
   return {
     preferences,
