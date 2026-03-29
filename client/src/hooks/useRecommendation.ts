@@ -67,8 +67,12 @@ interface UseRecommendationReturn {
 
 export function useRecommendation(): UseRecommendationReturn {
   const [preferences, setPreferences] = useState<RecommendationPreferences>(DEFAULT_PREFERENCES);
-  const [recommendation, setRecommendation] = useState<RecommendationResponse | null>(null);
-  const [artworkResponse, setArtworkResponse] = useState<ArtworkResponse | null>(null);
+  const [recommendation, setRecommendation] = useState<RecommendationResponse | null>(
+    () => loadHistoryFromStorage()[0]?.recommendation ?? null,
+  );
+  const [artworkResponse, setArtworkResponse] = useState<ArtworkResponse | null>(
+    () => loadHistoryFromStorage()[0]?.artworkResponse ?? null,
+  );
   const [history, setHistory] = useState<HistoryEntry[]>(loadHistoryFromStorage);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
