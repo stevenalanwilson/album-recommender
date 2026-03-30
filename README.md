@@ -67,7 +67,7 @@ All preferences are optional — the app works with any combination.
 | ----------------- | ------------------------------------------------- |
 | Frontend          | React 18, TypeScript, Vite                        |
 | Backend           | Node.js, TypeScript, Express                      |
-| AI                | Anthropic Claude (Haiku 4.5)                      |
+| AI                | Anthropic Claude (Sonnet 4.6)                     |
 | Artwork           | MusicBrainz + Cover Art Archive (iTunes fallback) |
 | Music links       | iTunes Search API (Apple Music), Spotify, Discogs |
 | Connected artists | MusicBrainz relationships + recording co-credits  |
