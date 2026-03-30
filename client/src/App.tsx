@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { PivotHint } from '@shared/types';
 import { downloadLibrary, parseLibraryFile } from './services/libraryExport';
 import { useRecommendation } from './hooks/useRecommendation';
-import { PreferencesPanel } from './features/preferences/PreferencesPanel';
+import { PreferencesPanel, sectionLabelStyle } from './features/preferences/PreferencesPanel';
 import { RecommendationCard } from './features/recommendation/RecommendationCard';
 import { HistoryGrid } from './features/history/HistoryGrid';
 import { InsightsPage } from './features/stats/InsightsPage';
@@ -211,18 +211,7 @@ export default function App(): React.ReactElement {
         <>
           <div className="app-sidebar">
             <div style={{ marginBottom: 20 }}>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: 11,
-                  color: 'var(--muted)',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  marginBottom: 6,
-                }}
-              >
-                Describe your vibe
-              </label>
+              <label style={sectionLabelStyle}>Describe your vibe</label>
               <textarea
                 value={vibeQuery}
                 onChange={(e) => updateVibeQuery(e.target.value)}

@@ -47,7 +47,7 @@ const ERA_LABELS: Record<Era, string> = {
 
 const ERA_OPTIONS = ERA_VALUES.map((value) => ({ value, label: ERA_LABELS[value] }));
 
-const sectionLabelStyle: React.CSSProperties = {
+export const sectionLabelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: 11,
   color: 'var(--muted)',
